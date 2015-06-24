@@ -252,7 +252,7 @@ public class Creature extends Sprite implements InputProcessor {
                     setY(targetX);
                     targetX = 0;
                     if(isPlayerMovingSouth && !canMove) {
-                        targetX = (int) (targetX - 32);
+                        targetX = (int) (getY() - 32);
                     }
                     else {
                         resetMovement();
@@ -279,7 +279,7 @@ public class Creature extends Sprite implements InputProcessor {
                     setX(targetX);
                     targetX = 0;
                     if(isPlayerMovingWest && !canMove) {
-                        targetX = (int) (targetX - 32);
+                        targetX = (int) (getX() - 32);
                     }
                     else {
                         resetMovement();
@@ -308,7 +308,7 @@ public class Creature extends Sprite implements InputProcessor {
                     setX(targetX);
                     targetX = 0;
                     if(isPlayerMovingEast && !canMove) {
-                        targetX = (int) (targetX - 32);
+                        targetX = (int) (getX() + 32);
                     }
                     else {
                         resetMovement();
