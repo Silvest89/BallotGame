@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="50" height="50" tilewidth="32" tileheight="32">
+ <properties>
+  <property name="atlas" value="terrain.pack"/>
+ </properties>
+ <tileset firstgid="1" name="terrain" tilewidth="32" tileheight="32" spacing="2" margin="2">
+  <image source="terrain.png" width="128" height="64"/>
+  <tile id="1">
+   <properties>
+    <property name="blocked" value=""/>
+   </properties>
+  </tile>
+ </tileset>
+ <layer name="background" width="50" height="50">
+  <data encoding="base64" compression="zlib">
+   eJzt1LEKwCAQRMHT///otOGIqQRdmGL6feA5qmoAAAAAAAAAcJV5wYadHfMlsW+1N7GjS+xI1+/i9J4dPf0tJXX93URSx6otrePrn0rs4JwHvFUJ6Q==
+  </data>
+ </layer>
+</map>
