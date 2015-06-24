@@ -23,7 +23,7 @@ public class Creature extends Sprite implements InputProcessor {
     /* Player movement velocity */
     private Vector2 velocity = new Vector2();
 
-    private float speed = 60 * 2, animationTime = 0;
+    private float speed = 80 * 2, animationTime = 0;
 
     private Animation southStanding, westStanding, eastStanding, northStanding;
     private Animation south, west, east, north;
@@ -340,6 +340,7 @@ public class Creature extends Sprite implements InputProcessor {
                 break;
             }
         }
+        System.out.println(getX());
     }
     public void resetMovement()
     {
