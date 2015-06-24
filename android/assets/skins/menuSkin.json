@@ -1,0 +1,12 @@
+{
+    "com.badlogic.gdx.graphics.Color": {
+        "white": { "r": 1, "g": 1, "b": 1, "a": 1 },
+        "black": { "r": 0, "g": 0, "b": 0, "a": 1 }
+    },
+    "com.badlogic.gdx.scenes.scene2d.ui.Label$LabelStyle": {
+        "default": { "font": "quicksand-bold"}
+    },
+    "com.badlogic.gdx.scenes.scene2d.ui.TextButton$TextButtonStyle": { 
+        "default": { "up": "blue_button02" , "down": "blue_button03", "font": "quicksand-bold", "fontColor": "black", "pressedOffsetY": -1 }
+    }    
+}
