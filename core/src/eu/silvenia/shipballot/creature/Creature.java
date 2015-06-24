@@ -27,9 +27,20 @@ public class Creature extends Sprite implements InputProcessor {
 
     private Animation southStanding, westStanding, eastStanding, northStanding;
     private Animation south, west, east, north;
-    private boolean canMove = true, isPlayerMovingEast = false, isPlayerMovingWest = false, isPlayerMovingNorth = false, isPlayerMovingSouth = false;
-    private float movementTimer = 0;
     private int targetX = 0;
+
+    public enum DIRECTION{
+        NORTH,
+        EAST,
+        SOUTH,
+        WEST
+    }
+
+    float oldX, oldY;
+
+    DIRECTION movingDirection = null;
+    boolean isMoving;
+    boolean isHolding;
 
     public Creature(GameScreen game, TextureAtlas playerAtlas, TiledMapTileLayer collisionLayer){
         super((new Animation(1 / 4f, playerAtlas.findRegions("southStanding"))).getKeyFrame(0));
@@ -86,15 +97,8 @@ public class Creature extends Sprite implements InputProcessor {
         //targetX = (int)(getX() + 1);
         //setX((int)(getX() + 1));
 
-            if (isPlayerMovingWest) {
-                movePlayer(2, delta);
-            }
-            else if (isPlayerMovingEast)
-                movePlayer(3, delta);
-            else if (isPlayerMovingNorth)
-                movePlayer(0, delta);
-            else if (isPlayerMovingSouth)
-                movePlayer(1, delta);
+        if(movingDirection != null)
+            movePlayer(movingDirection, delta);
 
         //System.out.print("score: " + targetX + "\n" );
 
@@ -134,40 +138,44 @@ public class Creature extends Sprite implements InputProcessor {
 
     @Override
     public boolean keyDown(int keycode) {
+        if(!isHolding && !isMoving) {
+            oldX = getX();
+            oldY = getY();
             switch (keycode) {
                 case Input.Keys.W: {
                     animationTime = 0;
                     velocity.y = speed;
                     targetX = (int) (getY() + 32);
-                    isPlayerMovingNorth = true;
-                    canMove = false;
+                    movingDirection = DIRECTION.NORTH;
+                    isHolding = true;
                     break;
                 }
                 case Input.Keys.A: {
                     animationTime = 0;
                     velocity.x = -speed;
                     targetX = (int) (getX() - 32);
-                    isPlayerMovingWest = true;
-                    canMove = false;
+                    movingDirection = DIRECTION.WEST;
+                    isHolding = true;
                     break;
                 }
                 case Input.Keys.S: {
                     animationTime = 0;
                     velocity.y = -speed;
                     targetX = (int) (getY() - 32);
-                    isPlayerMovingSouth = true;
-                    canMove = false;
+                    movingDirection = DIRECTION.SOUTH;
+                    isHolding = true;
                     break;
                 }
                 case Input.Keys.D: {
                     animationTime = 0;
                     velocity.x = speed;
                     targetX = (int) (getX() + 32);
-                    isPlayerMovingEast = true;
-                    canMove = false;
+                    movingDirection = DIRECTION.EAST;
+                    isHolding = true;
                     break;
                 }
             }
+        }
         return true;
     }
 
@@ -176,52 +184,60 @@ public class Creature extends Sprite implements InputProcessor {
         switch(keycode){
             case Input.Keys.A:
             {
-                canMove = true;
+                if(movingDirection == DIRECTION.WEST)
+                    isHolding = false;
                 break;
             }
             case Input.Keys.D:
             {
-                canMove = true;
+                if(movingDirection == DIRECTION.EAST)
+                    isHolding = false;
                 break;
             }
             case Input.Keys.W:
             {
-                canMove = true;
+                if(movingDirection == DIRECTION.NORTH)
+                    isHolding = false;
                 break;
             }
             case Input.Keys.S:
             {
-                canMove = true;
+                if(movingDirection == DIRECTION.SOUTH)
+                    isHolding = false;
                 break;
             }
         }
         return true;
     }
 
-    private void movePlayer(int direction, float delta) {
+    private void movePlayer(DIRECTION direction, float delta) {
         boolean collision = false;
-        float oldX = getX(); float oldY = getY();
+        isMoving = true;
         switch(direction){
-            case 0: {
+            case NORTH: {
                 setY(getY() + getSpeed() / 100 );
 
-                collision = isCellBlocked((getX() + 1), getY() + (getHeight()));
+                collision = isCellBlocked((getX() + 1), getY() + (getHeight() -5));
 
                 if(!collision)
-                    collision = isCellBlocked((getX() + 1) + (getWidth() - 1) / 2, getY() + (getHeight()));
+                    collision = isCellBlocked((getX() + 1) + (getWidth() - 5) / 2, getY() + (getHeight()-5));
 
                 if(!collision)
-                    collision = isCellBlocked((getX() + 1) + (getWidth() - 1), getY() + (getHeight()));
+                    collision = isCellBlocked((getX() + 1) + (getWidth() - 5), getY() + (getHeight()-5));
 
                 if(collision) {
                     setY(oldY);
                     targetX = 0;
                     resetMovement();
+                    //setRegion(northStanding.getKeyFrame(0));
                 }
+
                 if(getY() > targetX && targetX != 0) {
                     setY(targetX);
                     targetX = 0;
-                    if(isPlayerMovingNorth && !canMove) {
+                    isMoving = false;
+                    if(isHolding) {
+                        isMoving = true;
                         targetX = (int) (getY() + 32);
                     }
                     else {
@@ -231,16 +247,16 @@ public class Creature extends Sprite implements InputProcessor {
                 }
                 break;
             }
-            case 1: {
+            case SOUTH: {
                 setY(getY() - getSpeed() / 100 );
 
-                collision = isCellBlocked((getX() + 1), getY());
+                collision = isCellBlocked((getX() + 1), getY() + 5);
 
                 if(!collision)
-                    collision = isCellBlocked((getX() + 1) + (getWidth() -1 ) / 2, getY());
+                    collision = isCellBlocked((getX() + 1) + (getWidth() - 5) / 2, getY() + 5);
 
                 if(!collision)
-                    collision = isCellBlocked((getX() + 1) + (getWidth() -1 ), getY());
+                    collision = isCellBlocked((getX() + 1) + (getWidth() - 5), getY() + 5);
 
 
                 if(collision) {
@@ -248,10 +264,12 @@ public class Creature extends Sprite implements InputProcessor {
                     targetX = 0;
                     resetMovement();
                 }
-                if(getY() < targetX) {
+                if(getY() < targetX && !collision) {
                     setY(targetX);
                     targetX = 0;
-                    if(isPlayerMovingSouth && !canMove) {
+                    isMoving = false;
+                    if(isHolding) {
+                        isMoving = true;
                         targetX = (int) (getY() - 32);
                     }
                     else {
@@ -261,15 +279,15 @@ public class Creature extends Sprite implements InputProcessor {
                 }
                 break;
             }
-            case 2: {
+            case WEST: {
                 setX(getX() - getSpeed() / 100 );
-                collision = isCellBlocked(getX(), getY() + (getHeight() - 5));
+                collision = isCellBlocked(getX() + 5, getY() + (getHeight() - 5));
 
                 if(!collision)
-                    collision = isCellBlocked(getX(), getY() + (getHeight() - 5) / 2);
+                    collision = isCellBlocked(getX() + 5, getY() + (getHeight() - 5) / 2);
 
                 if(!collision)
-                    collision = isCellBlocked(getX(), getY());
+                    collision = isCellBlocked(getX() + 5, getY());
                 if(collision) {
                     setX(oldX);
                     targetX = 0;
@@ -278,7 +296,9 @@ public class Creature extends Sprite implements InputProcessor {
                 if(getX() < targetX && !collision) {
                     setX(targetX);
                     targetX = 0;
-                    if(isPlayerMovingWest && !canMove) {
+                    isMoving = false;
+                    if(isHolding) {
+                        isMoving = true;
                         targetX = (int) (getX() - 32);
                     }
                     else {
@@ -288,26 +308,28 @@ public class Creature extends Sprite implements InputProcessor {
                 }
                 break;
             }
-            case 3: {
+            case EAST: {
                 setX(getX() + (getSpeed() / 100));
 
-                collision = isCellBlocked(getX() + getWidth(), getY() + (getHeight() - 5));
+                collision = isCellBlocked(getX() + (getWidth() - 5), getY() + (getHeight() - 5));
 
                 if(!collision)
-                    collision = isCellBlocked(getX() + getWidth(), getY() + (getHeight() - 5) / 2);
+                    collision = isCellBlocked(getX() + (getWidth() - 5), getY() + (getHeight() - 5) / 2);
 
                 if(!collision)
-                    collision = isCellBlocked(getX() + getWidth(), getY());
+                    collision = isCellBlocked(getX() + (getWidth() - 5), getY());
 
                 if(collision) {
                     setX(oldX);
                     targetX = 0;
                     resetMovement();
                 }
-                if(getX() > targetX && !collision) {
+                if(getX() > targetX && targetX != 0) {
                     setX(targetX);
                     targetX = 0;
-                    if(isPlayerMovingEast && !canMove) {
+                    isMoving = false;
+                    if(isHolding) {
+                        isMoving = true;
                         targetX = (int) (getX() + 32);
                     }
                     else {
@@ -321,15 +343,13 @@ public class Creature extends Sprite implements InputProcessor {
     }
     public void resetMovement()
     {
+        movingDirection = null;
         targetX = 0;
-        isPlayerMovingNorth = false;
-        isPlayerMovingSouth = false;
-        isPlayerMovingEast = false;
-        isPlayerMovingWest = false;
-        canMove = true;
         animationTime = 0;
         velocity.x = 0;
         velocity.y = 0;
+        isMoving = false;
+        isHolding = false;
     }
 
     @Override

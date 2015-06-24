@@ -56,7 +56,7 @@ public class Splash implements Screen {
     @Override
     public void show() {
         splashImage = new Image(new Texture(Gdx.files.internal("splash.png")));
-
+animationDone = true;
         splashImage.addAction(Actions.sequence(Actions.alpha(0)
                 ,Actions.delay(1f),Actions.fadeIn(1.0f),Actions.delay(2f),Actions.fadeOut(1.5f), Actions.run(new Runnable() {
             @Override

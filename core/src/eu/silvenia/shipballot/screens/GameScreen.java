@@ -13,6 +13,9 @@ import com.badlogic.gdx.maps.tiled.AtlasTmxMapLoader;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
+import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.utils.viewport.ExtendViewport;
+import com.badlogic.gdx.utils.viewport.Viewport;
 import eu.silvenia.shipballot.ShipBallot;
 import eu.silvenia.shipballot.creature.Creature;
 
@@ -34,14 +37,18 @@ public class GameScreen implements Screen {
         this.game = game;
     }
 
+    Viewport viewport;
+
     @Override
     public void show() {
         float w = Gdx.graphics.getWidth();
         float h = Gdx.graphics.getHeight();
 
         camera = new OrthographicCamera();
-        camera.setToOrtho(false,w,h);
-        camera.update();
+        //camera.setToOrtho(false,w,h);
+        //camera.update();
+        viewport = new ExtendViewport(800, 480,camera);
+        viewport.apply();
 
         AtlasTmxMapLoader.AtlasTiledMapLoaderParameters parameters = new AtlasTmxMapLoader.AtlasTiledMapLoaderParameters();
         parameters.forceTextureFilters = true;
@@ -57,6 +64,10 @@ public class GameScreen implements Screen {
         player = new Creature(this, playerAtlas, (TiledMapTileLayer)tiledMap.getLayers().get(0));
         player.setPosition(2 * player.getCollisionLayer().getTileWidth(), (player.getCollisionLayer().getHeight() - 46) * player.getCollisionLayer().getTileHeight());
         Gdx.input.setInputProcessor(player);
+        camera.position.x = MathUtils.clamp(camera.position.x, 400, getMapWidth() - 400);
+        camera.position.y = MathUtils.clamp(camera.position.y, 240, getMapHeight() - 240);
+        //camera.position.set(camera.viewportWidth/2,camera.viewportHeight/2,0);
+        //camera.position.set(player.getX() + player.getWidth() / 2, player.getY() + player.getHeight() / 2, 0);
     }
 
     @Override
@@ -64,7 +75,7 @@ public class GameScreen implements Screen {
         Gdx.gl.glClearColor(1, 0, 0, 1);
         Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-
+        camera.position.set(player.getX() + player.getWidth() / 2, player.getY() + player.getHeight() / 2, 0);
         camera.update();
 
         tiledMapRenderer.setView(camera);
@@ -76,8 +87,9 @@ public class GameScreen implements Screen {
     }
 
     @Override
-    public void resize(int width, int height) {
-
+    public void resize(int width, int height){
+        viewport.update(width,height);
+        camera.position.set(camera.viewportWidth/2,camera.viewportHeight/2,0);
     }
 
     @Override
