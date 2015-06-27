@@ -19,8 +19,8 @@ public class TextManager {
         batch = batch2;
     }
     public static void Draw(String text, OrthographicCamera cam){
-        Vector3 position = new Vector3(150, 150, 0);
-        //cam.unproject(position);
-        font.draw(batch, text, 0, 0);
+        Vector3 position = new Vector3(0, 0, 0);
+        cam.unproject(position);
+        font.draw(batch, text, position.x, position.y);
     }
 }

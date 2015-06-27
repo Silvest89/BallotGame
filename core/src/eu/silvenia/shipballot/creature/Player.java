@@ -133,14 +133,9 @@ public class Player extends Creature implements ContactFilter, ContactListener{
     @Override
     public boolean keyUp(int keycode) {
         switch (keycode){
-            case Input.Keys.A:{
-                keyforce.x = 0;
-                animatedBox2DSprite.setAnimation(westStanding);
-                break;
-            }
+            case Input.Keys.A:
             case Input.Keys.D:{
-                keyforce.x = 0;
-                animatedBox2DSprite.setAnimation(eastStanding);
+                stopPlayer();
                 break;
             }
         }
@@ -166,7 +161,7 @@ public class Player extends Creature implements ContactFilter, ContactListener{
 
     @Override
     public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-        keyforce.x = 0;
+        stopPlayer();
         return false;
     }
 
