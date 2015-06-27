@@ -19,6 +19,7 @@ import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import eu.silvenia.shipballot.ShipBallot;
 import eu.silvenia.shipballot.data.Assets;
+import com.badlogic.gdx.tools.texturepacker.TexturePacker;
 
 /**
  * Created by Johnnie Ho on 23-6-2015.
@@ -38,6 +39,8 @@ public class MainMenu implements Screen {
 
     @Override
     public void show() {
+        //TexturePacker.process("test/", "test/", "test");
+
 
         Label title = new Label("Ship Ballot", skin);
 
@@ -57,9 +60,9 @@ public class MainMenu implements Screen {
         table.align(Align.top);
         table.padTop(150);
         table.add(title).padBottom(40).row();
-        table.add(buttonPlay).size(280,90).padBottom(30).row();
-        table.add(buttonOptions).size(280,90).padBottom(30).row();
-        table.add(buttonExit).size(280,90).padBottom(30).row();
+        table.add(buttonPlay).size(300, 90).padBottom(30).row();
+        table.add(buttonOptions).size(300,90).padBottom(30).row();
+        table.add(buttonExit).size(300,90).padBottom(30).row();
 
         table.setFillParent(true);
         stage.addActor(table);
@@ -111,7 +114,7 @@ public class MainMenu implements Screen {
 
     @Override
     public void resize(int width, int height) {
-
+       stage.getViewport().update(width, height);
     }
 
     @Override

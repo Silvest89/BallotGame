@@ -1,14 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" orientation="orthogonal" renderorder="right-down" width="50" height="50" tilewidth="32" tileheight="32" nextobjectid="1">
- <properties>
-  <property name="atlas" value=""/>
- </properties>
- <tileset firstgid="1" name="terrain" tilewidth="32" tileheight="32" spacing="2" tilecount="3">
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="20" height="20" tilewidth="32" tileheight="32" nextobjectid="6">
+ <tileset firstgid="1" name="terrain" tilewidth="32" tileheight="32" spacing="2" margin="2" tilecount="3">
   <image source="terrain.png" trans="ff00ff" width="128" height="64"/>
  </tileset>
- <layer name="background" width="50" height="50">
+ <layer name="background" width="20" height="20">
   <data encoding="base64" compression="zlib">
-   eJztwwEJAAAMBKH7/qWXY6DgqqmqqqqqqqqqqurzBwHpCcU=
+   eJxjYmBgYKIyphYYNW/UvFHzRs0bSeZRqzyldpmOCwMA6kcAqQ==
   </data>
  </layer>
+ <objectgroup name="box2D">
+  <object id="3" name="environment" type="object" x="607" y="35">
+   <polyline points="0,0 -575,-4 -576,572 -159,572 -159,542 -98,540 -96,507 -1,506 -1,-1"/>
+  </object>
+ </objectgroup>
 </map>

@@ -4,12 +4,13 @@
         "black": { "r": 0, "g": 0, "b": 0, "a": 1 }
     },
     "com.badlogic.gdx.scenes.scene2d.ui.Window$WindowStyle":{
-        "default": { "titleFont": "quicksand-bold", "background": "blue_button02"}
+        "default": { "titleFont": "quicksand-bold", "background": "menu_pressed"}
     },
     "com.badlogic.gdx.scenes.scene2d.ui.Label$LabelStyle": {
         "default": { "font": "quicksand-bold"}
     },
     "com.badlogic.gdx.scenes.scene2d.ui.TextButton$TextButtonStyle": { 
-        "default": { "up": "blue_button02" , "down": "blue_button03", "font": "quicksand-bold", "fontColor": "black", "pressedOffsetY": -1 }
-    }    
+        "default": { "up": "menu_default" , "down": "menu_pressed", "font": "quicksand-bold", "fontColor": "black", "pressedOffsetY": -1 }
+    }
+
 }
