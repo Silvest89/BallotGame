@@ -10,16 +10,18 @@ import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
+import eu.silvenia.shipballot.GameObject;
 import eu.silvenia.shipballot.PhysicsManager;
 import eu.silvenia.shipballot.screens.GameScreen;
 import eu.silvenia.shipballot.world.TileObjects;
 import net.dermetfan.gdx.graphics.g2d.AnimatedBox2DSprite;
+import net.dermetfan.gdx.graphics.g2d.AnimatedSprite;
 import net.dermetfan.gdx.graphics.g2d.Box2DSprite;
 
 /**
  * Created by Johnnie Ho on 25-6-2015.
  */
-abstract public class Creature implements InputProcessor {
+abstract public class Creature extends GameObject implements InputProcessor {
     private float speed;
     private float animationTime;
 
@@ -27,10 +29,6 @@ abstract public class Creature implements InputProcessor {
 
     protected Animation southStanding, westStanding, eastStanding, northStanding;
     protected Animation south, west, east, north;
-
-    protected Vector2 targetPosition = new Vector2();
-
-    public AnimatedBox2DSprite animatedBox2DSprite;
 
     public enum DIRECTION{
         NORTH,
@@ -46,13 +44,17 @@ abstract public class Creature implements InputProcessor {
     private int health;
     private int maxHealth;
 
-    DIRECTION movingDirection = null;
+    HealthBar healthBar;
+    NameBar nameBar;
 
-    public Creature(GameScreen game, String name){
+    DIRECTION movingDirection = null;
+    DIRECTION lookingDirection = null;
+
+    public Creature(GameScreen game, AnimatedSprite animatedSprite, String name){
+        super(animatedSprite);
         this.speed = (80 * 2);
         this.animationTime = 0;
         this.game = game;
-        //this.healthBar = new HealthBar(this);
         this.name = name;
 
         this.health = 100;
@@ -75,14 +77,46 @@ abstract public class Creature implements InputProcessor {
         this.animationTime = animationTime;
     }
 
-    abstract public void update(float delta);
-
     public String getName() {
         return name;
     }
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public int getHealth() {
+        return health;
+    }
+
+    public void setHealth(int health) {
+        this.health = health;
+    }
+
+    public int getMaxHealth() {
+        return maxHealth;
+    }
+
+    public void setMaxHealth(int maxHealth) {
+        this.maxHealth = maxHealth;
+    }
+
+    public DIRECTION getLookingDirection() {
+        return lookingDirection;
+    }
+
+    public void setLookingDirection(DIRECTION lookingDirection) {
+        this.lookingDirection = lookingDirection;
+    }
+
+    @Override public void draw(Batch batch){
+        healthBar.render(batch);
+        nameBar.draw(batch);
+    }
+
+    public void update(float delta){
+        healthBar.update();
+
     }
 
     protected class HealthBar{
@@ -105,12 +139,12 @@ abstract public class Creature implements InputProcessor {
         public void update(){
             healthBarBackground.setPosition(owner.getBody().getPosition().x - 1, owner.getBody().getPosition().y + 1.1f);
             healthBarForeground.setPosition(owner.getBody().getPosition().x - 1, owner.getBody().getPosition().y + 1.1f);
-            //healthBarForeground.setScale(owner.health / (float)owner.maxHealth, 1f);
+            healthBarForeground.setScale(owner.getHealth() / (float)owner.getMaxHealth(), 1f);
         }
 
         public void render(Batch batch){
             healthBarBackground.draw(batch);
-           healthBarForeground.draw(batch);
+            healthBarForeground.draw(batch);
         }
     }
 

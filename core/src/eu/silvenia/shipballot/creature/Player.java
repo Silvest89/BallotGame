@@ -1,34 +1,29 @@
 package eu.silvenia.shipballot.creature;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
-import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.*;
-import eu.silvenia.shipballot.PhysicsManager;
+import eu.silvenia.shipballot.EntityManager;
+import eu.silvenia.shipballot.GameObject;
+import eu.silvenia.shipballot.projectile.Bullet;
 import eu.silvenia.shipballot.screens.GameScreen;
-import eu.silvenia.shipballot.world.TileObjects;
+
 import net.dermetfan.gdx.graphics.g2d.AnimatedBox2DSprite;
 import net.dermetfan.gdx.graphics.g2d.AnimatedSprite;
-import net.dermetfan.gdx.graphics.g2d.Box2DSprite;
-import com.badlogic.gdx.math.Vector2;
 
-import javax.lang.model.element.Name;
 
 /**
  * Created by Johnnie Ho on 24-6-2015.
  */
-public class Player extends Creature implements ContactFilter, ContactListener{
+public class Player extends Creature{
 
-    Body body;
-    //Box2DSprite sprite;
-
+    World world;
     boolean isMoving;
     boolean isHolding;
 
@@ -41,35 +36,16 @@ public class Player extends Creature implements ContactFilter, ContactListener{
     private float jumpForce = 100;
 
     private boolean canJump;
-    HealthBar healthBar;
-    NameBar nameBar;
     OrthographicCamera camera;
 
-    public Player(GameScreen game, TextureAtlas playerAtlas, String name, World world, OrthographicCamera camera){
-        super(game, name);
-    this.camera = camera;
-        this.southStanding = new Animation(1 / 4f, playerAtlas.findRegions("southStanding"));
-        this.westStanding = new Animation(1 / 4f, playerAtlas.findRegions("westStanding"));
-        this.eastStanding = new Animation(1 / 4f, playerAtlas.findRegions("eastStanding"));
-        this.northStanding = new Animation(1 / 4f, playerAtlas.findRegions("northStanding"));
 
-        this.south = new Animation(1 / 4f, playerAtlas.findRegions("south"));
-        this.west = new Animation(1 / 4f, playerAtlas.findRegions("west"));
-        this.east = new Animation(1 / 4f, playerAtlas.findRegions("east"));
-        this.north = new Animation(1 / 4f, playerAtlas.findRegions("north"));
-        this.south.setPlayMode(Animation.PlayMode.LOOP);
-        this.west.setPlayMode(Animation.PlayMode.LOOP);
-        this.east.setPlayMode(Animation.PlayMode.LOOP);
-        this.north.setPlayMode(Animation.PlayMode.LOOP);
+    public Player(GameScreen game, AnimatedSprite animatedSprite, String name, World world, OrthographicCamera camera){
+        super(game, animatedSprite, name);
+        this.camera = camera;
+        this.world = world;
 
         this.experience = 0;
         this.canJump = false;
-
-        AnimatedSprite animatedSprite = new AnimatedSprite(this.southStanding);
-        animatedBox2DSprite = new AnimatedBox2DSprite(animatedSprite);
-        //sprite = new Box2DSprite(new Animation(1 / 4f, playerAtlas.findRegions("southStanding")).getKeyFrame(0));
-
-        //nameBar = new NameBar(this);
 
         // reusable construction objects
         BodyDef bodyDef = new BodyDef();
@@ -90,22 +66,61 @@ public class Player extends Creature implements ContactFilter, ContactListener{
 
         body = world.createBody(bodyDef);
         body.createFixture(fixtureDef);
-        body.setUserData(animatedBox2DSprite);
-        animatedBox2DSprite.play();
+        body.setUserData(this);
+
+        shape.dispose();
+
         healthBar = new HealthBar(this);
         nameBar = new NameBar(this);
+        //this.play();
+        EntityManager.setToUpdate(this);
     }
 
+    public void setupAnimation(TextureAtlas playerAtlas){
+        this.southStanding = new Animation(1 / 4f, playerAtlas.findRegions("southStanding"));
+        this.westStanding = new Animation(1 / 4f, playerAtlas.findRegions("westStanding"));
+        this.eastStanding = new Animation(1 / 4f, playerAtlas.findRegions("eastStanding"));
+        this.northStanding = new Animation(1 / 4f, playerAtlas.findRegions("northStanding"));
+
+        this.south = new Animation(1 / 4f, playerAtlas.findRegions("south"));
+        this.west = new Animation(1 / 4f, playerAtlas.findRegions("west"));
+        this.east = new Animation(1 / 4f, playerAtlas.findRegions("east"));
+        this.north = new Animation(1 / 4f, playerAtlas.findRegions("north"));
+
+        this.south.setPlayMode(Animation.PlayMode.LOOP);
+        this.west.setPlayMode(Animation.PlayMode.LOOP);
+        this.east.setPlayMode(Animation.PlayMode.LOOP);
+        this.north.setPlayMode(Animation.PlayMode.LOOP);
+    }
+
+    @Override
     public void draw(Batch batch){
-        healthBar.update();
-        healthBar.render(batch);
-        nameBar.draw(batch);
+        super.draw(batch);
     }
 
+    @Override
     public void update(float delta){
-        animatedBox2DSprite.update(delta);
+        super.update(delta);
         body.applyForceToCenter(keyforce, true);
-        setAnimationTime(getAnimationTime() + (100 * delta / 100));
+
+        setAnimationTime(getAnimationTime() + (getSpeed() * delta / 100));
+        if(movingDirection != null)
+            animatePlayer();
+    }
+
+    public void animatePlayer(){
+        switch(movingDirection){
+            case WEST:{
+                setLookingDirection(DIRECTION.WEST);
+                setRegion(west.getKeyFrame(getAnimationTime()));
+                break;
+            }
+            case EAST:{
+                setLookingDirection(DIRECTION.EAST);
+                setRegion(east.getKeyFrame(getAnimationTime()));
+                break;
+            }
+        }
     }
 
     @Override
@@ -124,6 +139,12 @@ public class Player extends Creature implements ContactFilter, ContactListener{
                     body.applyLinearImpulse(0, jumpForce, body.getWorldCenter().x, body.getWorldCenter().y, true);
                     canJump = false;
                 }
+
+                break;
+            }
+            case Input.Keys.SHIFT_LEFT:{
+                Bullet bullet = new Bullet(new Texture("bullet.png"), this, world);
+                EntityManager.add(bullet);
                 break;
             }
         }
@@ -180,67 +201,43 @@ public class Player extends Creature implements ContactFilter, ContactListener{
         return false;
     }
 
-    public Body getBody() {
-        return body;
-    }
-
     @Override
-    public boolean shouldCollide(Fixture fixtureA, Fixture fixtureB) {
-        if(fixtureA.getBody().getType() == BodyDef.BodyType.StaticBody)
-            return true;
-
-        return false;
-    }
-
-    @Override
-    public void beginContact(Contact contact) {
-        if(contact.getFixtureA().getBody().getType() == BodyDef.BodyType.StaticBody) {
+    public void handleCollision(Body body){
+        if(game.parser.getBodies().get("ground") == body) {
             canJump = true;
         }
-    }
-
-    @Override
-    public void endContact(Contact contact) {
-
-    }
-
-    @Override
-    public void preSolve(Contact contact, Manifold oldManifold) {
-
-    }
-
-    @Override
-    public void postSolve(Contact contact, ContactImpulse impulse) {
-
     }
 
     public void movePlayer(DIRECTION direction){
         switch(direction){
             case WEST:{
                 keyforce.x = -movementForce;
-                animatedBox2DSprite.setAnimation(west);
                 movingDirection = DIRECTION.WEST;
                 break;
             }
             case EAST:{
                 keyforce.x = movementForce;
-                animatedBox2DSprite.setAnimation(east);
                 movingDirection = DIRECTION.EAST;
                 break;
             }
         }
     }
     public void stopPlayer(){
+        if(movingDirection == null)
+            return;
         keyforce.x = 0;
+        setAnimationTime(0);
+
         switch(movingDirection){
             case WEST:{
-                animatedBox2DSprite.setAnimation(westStanding);
+                setRegion(westStanding.getKeyFrame(0));
                 break;
             }
             case EAST:{
-                animatedBox2DSprite.setAnimation(eastStanding);
+                setRegion(eastStanding.getKeyFrame(0));
                 break;
             }
         }
+        movingDirection = null;
     }
 }

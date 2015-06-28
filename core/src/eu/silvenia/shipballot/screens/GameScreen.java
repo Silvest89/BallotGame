@@ -13,10 +13,8 @@ import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.*;
-import eu.silvenia.shipballot.FpsTimer;
-import eu.silvenia.shipballot.PhysicsManager;
-import eu.silvenia.shipballot.ShipBallot;
-import eu.silvenia.shipballot.TextManager;
+import eu.silvenia.shipballot.*;
+import eu.silvenia.shipballot.creature.Creature;
 import eu.silvenia.shipballot.creature.Player;
 import eu.silvenia.shipballot.data.Assets;
 import net.dermetfan.gdx.graphics.g2d.AnimatedBox2DSprite;
@@ -29,7 +27,7 @@ import net.dermetfan.gdx.physics.box2d.Box2DUtils;
 /**
  * Created by Johnnie Ho on 24-6-2015.
  */
-public class GameScreen implements Screen {
+public class GameScreen implements Screen, ContactFilter, ContactListener{
     public static long currentTimeMillis;
 
     public World world;
@@ -39,6 +37,7 @@ public class GameScreen implements Screen {
 
     private OrthographicCamera camera;
     private OrthogonalTiledMapRenderer tiledMapRenderer;
+    public Box2DMapObjectParser parser;
 
     private Player player;
 
@@ -68,7 +67,7 @@ public class GameScreen implements Screen {
 
         TiledMap map = new TmxMapLoader().load("map/untitled.tmx");
 
-        Box2DMapObjectParser parser = new Box2DMapObjectParser(.03125f);
+        parser = new Box2DMapObjectParser(.03125f);
         parser.load(world, map);
 
         tiledMapRenderer = new OrthogonalTiledMapRenderer(map, parser.getUnitScale());
@@ -78,9 +77,12 @@ public class GameScreen implements Screen {
         //Animation animation = new Animation(1 / 3f, playerAtlas.f);
         //AnimatedSprite animatedSprite = new AnimatedSprite(animation);
 
-        player = new Player(this, playerAtlas, "Johnnie", world, camera);
-        world.setContactFilter(player);
-        world.setContactListener(player);
+        AnimatedSprite animatedSprite = new AnimatedSprite(new Animation(1 / 4f, playerAtlas.findRegions("southStanding")));
+
+        player = new Player(this, animatedSprite, "Johnnie", world, camera);
+        player.setupAnimation(playerAtlas);
+        world.setContactFilter(this);
+        world.setContactListener(this);
 
         TextManager.setBatch(batch);
 
@@ -90,16 +92,18 @@ public class GameScreen implements Screen {
 
     @Override
     public void render(float delta) {
+        world.step(1 / 60f, 8, 3);
+        EntityManager.update(world, delta);
         currentTimeMillis = System.currentTimeMillis();
         FpsTimer.update();
-        world.step(1 / 60f, 8, 3);
 
         Gdx.gl.glClearColor(0, 0, 0, 0);
         Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
+       // player.update(delta);
+
         camera.position.set(player.getBody().getPosition().x, player.getBody().getPosition().y, 0);
-        player.update(delta);
         camera.update();
         tiledMapRenderer.setView(camera);
         tiledMapRenderer.render();
@@ -108,10 +112,11 @@ public class GameScreen implements Screen {
         batch.begin();
         AnimatedBox2DSprite.draw(batch, world);
         player.draw(batch);
+        Box2DSprite.draw(batch, world);
         TextManager.Draw("FPS: " + Gdx.graphics.getFramesPerSecond() + " Time: " + FpsTimer.time, camera);
         batch.end();
 
-        //debugRenderer.render(world, camera.combined);
+        debugRenderer.render(world, camera.combined);
     }
 
     @Override
@@ -139,5 +144,42 @@ public class GameScreen implements Screen {
     @Override
     public void dispose() {
         world.dispose();
+    }
+
+    @Override
+    public boolean shouldCollide(Fixture fixtureA, Fixture fixtureB) {
+        if(fixtureA.getBody().getUserData() == null || fixtureB.getBody().getUserData() == null) {
+            return true;
+        }
+
+        return false;
+    }
+
+    @Override
+    public void beginContact(Contact contact) {
+
+        GameObject object = (GameObject) contact.getFixtureA().getBody().getUserData();
+        GameObject object2 = (GameObject) contact.getFixtureB().getBody().getUserData();
+
+        if(object != null) {
+            object.handleCollision(contact.getFixtureB().getBody());
+        }
+        if(object2 != null)
+            object2.handleCollision(contact.getFixtureA().getBody());
+    }
+
+    @Override
+    public void endContact(Contact contact) {
+
+    }
+
+    @Override
+    public void preSolve(Contact contact, Manifold oldManifold) {
+
+    }
+
+    @Override
+    public void postSolve(Contact contact, ContactImpulse impulse) {
+
     }
 }
