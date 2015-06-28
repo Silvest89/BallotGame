@@ -95,6 +95,7 @@ public class GameScreen implements Screen, ContactFilter, ContactListener{
 
         Gdx.input.setInputProcessor(player);
         TextManager.setBatch(batch);
+        System.out.println(parser.getBodies());
     }
 
     @Override
@@ -125,7 +126,7 @@ public class GameScreen implements Screen, ContactFilter, ContactListener{
         TextManager.Draw("FPS: " + Gdx.graphics.getFramesPerSecond() + " Time: " + FpsTimer.time, camera);
         batch.end();
 
-        debugRenderer.render(world, camera.combined);
+        //debugRenderer.render(world, camera.combined);
     }
 
     @Override

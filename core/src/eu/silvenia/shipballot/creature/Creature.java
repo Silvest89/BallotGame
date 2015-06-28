@@ -1,23 +1,15 @@
 package eu.silvenia.shipballot.creature;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
-import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
-import eu.silvenia.shipballot.DamageText;
-import eu.silvenia.shipballot.EntityManager;
-import eu.silvenia.shipballot.GameObject;
-import eu.silvenia.shipballot.PhysicsManager;
-import eu.silvenia.shipballot.projectile.Bullet;
+import eu.silvenia.shipballot.*;
+import eu.silvenia.shipballot.weapons.Bullet;
 import eu.silvenia.shipballot.screens.GameScreen;
-import eu.silvenia.shipballot.world.TileObjects;
-import net.dermetfan.gdx.graphics.g2d.AnimatedBox2DSprite;
 import net.dermetfan.gdx.graphics.g2d.AnimatedSprite;
 import net.dermetfan.gdx.graphics.g2d.Box2DSprite;
 
@@ -165,8 +157,10 @@ abstract public class Creature extends Box2DSprite implements GameObject, InputP
     }
 
     public void hit(Bullet bullet){
-        health -= bullet.getDamage();
-        new DamageText(Double.toString(bullet.getDamage()), getBody().getPosition().x, getBody().getPosition().y);
+        double damage = (Math.random()*15) + bullet.getDamage();
+        damage = HelperTools.round(damage, 2);
+        health -= damage;
+        new DamageText(Double.toString(damage), getBody().getPosition().x, getBody().getPosition().y);
         if(health <= 0) {
             health = 0;
             if(bullet.getOwner() != null)
@@ -175,6 +169,7 @@ abstract public class Creature extends Box2DSprite implements GameObject, InputP
             GameScreen.playerList.remove(this);
         }
     }
+
 
     @Override public void draw(Batch batch){
         healthBar.render(batch);

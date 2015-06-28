@@ -10,11 +10,10 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.*;
 import eu.silvenia.shipballot.EntityManager;
-import eu.silvenia.shipballot.GameObject;
-import eu.silvenia.shipballot.projectile.Bullet;
+import eu.silvenia.shipballot.weapons.Bullet;
 import eu.silvenia.shipballot.screens.GameScreen;
 
-import net.dermetfan.gdx.graphics.g2d.AnimatedBox2DSprite;
+import eu.silvenia.shipballot.weapons.Weapon;
 import net.dermetfan.gdx.graphics.g2d.AnimatedSprite;
 
 
@@ -27,9 +26,13 @@ public class Player extends Creature{
 
     OrthographicCamera camera;
 
+    Weapon weapon;
+
     public Player(GameScreen game, AnimatedSprite animatedSprite, String name, World world, OrthographicCamera camera){
         super(game, animatedSprite, name, world);
         this.camera = camera;
+
+        weapon = new Weapon(this, Weapon.WeaponType.SHOTGUN);
 
         // reusable construction objects
         BodyDef bodyDef = new BodyDef();
@@ -78,6 +81,7 @@ public class Player extends Creature{
     @Override
     public void update(float delta){
         super.update(delta);
+        weapon.update();
         getBody().applyForceToCenter(keyforce, true);
 
         setAnimationTime(getAnimationTime() + (getSpeed() * delta / 100));
@@ -120,8 +124,7 @@ public class Player extends Creature{
                 break;
             }
             case Input.Keys.SHIFT_LEFT:{
-                Bullet bullet = new Bullet(new Texture("bullet.png"), this, getWorld());
-                EntityManager.add(bullet);
+                weapon.fire();
                 break;
             }
         }

@@ -1,10 +1,12 @@
 package eu.silvenia.shipballot;
 
 import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
 import eu.silvenia.shipballot.creature.Creature;
 import eu.silvenia.shipballot.creature.Player;
+import eu.silvenia.shipballot.weapons.Bullet;
 
 import java.util.ArrayList;
 import java.util.Objects;

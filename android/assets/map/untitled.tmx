@@ -1,21 +1,57 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" orientation="orthogonal" renderorder="right-down" width="20" height="20" tilewidth="32" tileheight="32" nextobjectid="21">
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="20" height="20" tilewidth="32" tileheight="32" nextobjectid="52">
  <tileset firstgid="1" name="terrain" tilewidth="32" tileheight="32" spacing="2" margin="2" tilecount="3">
   <image source="terrain.png" trans="ff00ff" width="128" height="64"/>
  </tileset>
  <layer name="background" width="20" height="20">
   <data encoding="base64" compression="zlib">
-   eJxjYmBgYKIyphYYNW/UvOFsHhOaOKn5CZd51HQfJWbiMg/dTHL9SykYjOZRuyymNQYATiYA6Q==
+   eJxjYmBgYKIyphYYNW9km4dNnpz0h0+eVPMoSe9DPT7INY9a5tLDv5SYTw33UbsspjUGAKceAPs=
   </data>
  </layer>
  <objectgroup name="box2D">
-  <object id="8" name="box" type="object" x="288" y="447" width="127" height="33"/>
-  <object id="10" name="box" type="object" x="161" y="351" width="254" height="31"/>
-  <object id="19" name="environment" type="object" x="32" y="575">
-   <polyline points="0,0 -1,-545 575,-544 576,-32"/>
-  </object>
-  <object id="20" name="ground" type="object" x="609" y="542">
+  <object id="20" name="box" type="fixture" x="609" y="542">
+   <properties>
+    <property name="body" value="ground"/>
+   </properties>
    <polyline points="0,0 -97,1 -98,34 -577,33"/>
+  </object>
+  <object id="41" name="ground" type="body" x="519" y="552" width="24" height="30">
+   <properties>
+    <property name="bodyType" value="StaticBody"/>
+   </properties>
+  </object>
+  <object id="42" name="box" type="fixture" x="128" y="512" width="32" height="32">
+   <properties>
+    <property name="body" value="ground"/>
+   </properties>
+  </object>
+  <object id="43" name="box" type="fixture" x="32" y="448" width="64" height="32">
+   <properties>
+    <property name="body" value="ground"/>
+   </properties>
+  </object>
+  <object id="45" name="box" type="fixture" x="160" y="288" width="128" height="64">
+   <properties>
+    <property name="body" value="ground"/>
+   </properties>
+  </object>
+  <object id="46" name="box" type="fixture" x="224" y="256" width="64" height="32">
+   <properties>
+    <property name="body" value="ground"/>
+   </properties>
+  </object>
+  <object id="47" name="box" type="fixture" x="384" y="256" width="224" height="64">
+   <properties>
+    <property name="body" value="ground"/>
+   </properties>
+  </object>
+  <object id="48" name="box" type="fixture" x="128" y="320" width="32" height="32">
+   <properties>
+    <property name="body" value="ground"/>
+   </properties>
+  </object>
+  <object id="51" name="environment" type="object" x="608" y="544">
+   <polyline points="0,0 0,-512 -576,-512 -576,32"/>
   </object>
  </objectgroup>
 </map>
