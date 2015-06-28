@@ -4,7 +4,9 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.physics.box2d.Body;
 
 /**
  * Created by Johnnie Ho on 26-6-2015.
@@ -18,6 +20,7 @@ public class TextManager {
         font.getData().setScale(0.05f);
         batch = batch2;
     }
+
     public static void Draw(String text, OrthographicCamera cam){
         Vector3 position = new Vector3(0, 0, 0);
         cam.unproject(position);

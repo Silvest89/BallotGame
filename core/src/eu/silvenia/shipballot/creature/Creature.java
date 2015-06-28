@@ -10,8 +10,11 @@ import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
+import eu.silvenia.shipballot.DamageText;
+import eu.silvenia.shipballot.EntityManager;
 import eu.silvenia.shipballot.GameObject;
 import eu.silvenia.shipballot.PhysicsManager;
+import eu.silvenia.shipballot.projectile.Bullet;
 import eu.silvenia.shipballot.screens.GameScreen;
 import eu.silvenia.shipballot.world.TileObjects;
 import net.dermetfan.gdx.graphics.g2d.AnimatedBox2DSprite;
@@ -21,7 +24,16 @@ import net.dermetfan.gdx.graphics.g2d.Box2DSprite;
 /**
  * Created by Johnnie Ho on 25-6-2015.
  */
-abstract public class Creature extends GameObject implements InputProcessor {
+abstract public class Creature extends Box2DSprite implements GameObject, InputProcessor {
+
+    private World world;
+    protected Body body;
+
+    private boolean canJump;
+    private int experience;
+
+    private float movementForce = 75;
+    private float jumpForce = 60;
     private float speed;
     private float animationTime;
 
@@ -31,14 +43,9 @@ abstract public class Creature extends GameObject implements InputProcessor {
     protected Animation south, west, east, north;
 
     public enum DIRECTION{
-        NORTH,
         EAST,
-        SOUTH,
         WEST
     }
-
-    float oldX, oldY;
-
     private String name;
 
     private int health;
@@ -50,15 +57,23 @@ abstract public class Creature extends GameObject implements InputProcessor {
     DIRECTION movingDirection = null;
     DIRECTION lookingDirection = null;
 
-    public Creature(GameScreen game, AnimatedSprite animatedSprite, String name){
+    public Creature(GameScreen game, AnimatedSprite animatedSprite, String name, World world){
         super(animatedSprite);
+
+        this.world = world;
         this.speed = (80 * 2);
         this.animationTime = 0;
         this.game = game;
         this.name = name;
 
+        this.experience = 25;
+        this.canJump = false;
+
         this.health = 100;
         this.maxHealth = 100;
+
+        healthBar = new HealthBar(this);
+        nameBar = new NameBar(this);
     }
 
     public float getSpeed() {
@@ -85,6 +100,14 @@ abstract public class Creature extends GameObject implements InputProcessor {
         this.name = name;
     }
 
+    public int getExperience() {
+        return experience;
+    }
+
+    public void addExperience(int experience) {
+        this.experience += experience;
+    }
+
     public int getHealth() {
         return health;
     }
@@ -105,8 +128,52 @@ abstract public class Creature extends GameObject implements InputProcessor {
         return lookingDirection;
     }
 
+    public float getMovementForce() {
+        return movementForce;
+    }
+
+    public void setMovementForce(float movementForce) {
+        this.movementForce = movementForce;
+    }
+
+    public float getJumpForce() {
+        return jumpForce;
+    }
+
+    public void setJumpForce(float jumpForce) {
+        this.jumpForce = jumpForce;
+    }
+
+    public boolean canJump() {
+        return canJump;
+    }
+
+    public void setCanJump(boolean canJump) {
+        this.canJump = canJump;
+    }
+
+    public World getWorld() {
+        return world;
+    }
+
     public void setLookingDirection(DIRECTION lookingDirection) {
         this.lookingDirection = lookingDirection;
+    }
+
+    public Body getBody() {
+        return body;
+    }
+
+    public void hit(Bullet bullet){
+        health -= bullet.getDamage();
+        new DamageText(Double.toString(bullet.getDamage()), getBody().getPosition().x, getBody().getPosition().y);
+        if(health <= 0) {
+            health = 0;
+            if(bullet.getOwner() != null)
+                bullet.getOwner().addExperience(getExperience());
+            EntityManager.setToDestroy(this);
+            GameScreen.playerList.remove(this);
+        }
     }
 
     @Override public void draw(Batch batch){
@@ -116,26 +183,25 @@ abstract public class Creature extends GameObject implements InputProcessor {
 
     public void update(float delta){
         healthBar.update();
-
     }
 
     protected class HealthBar{
         private Sprite healthBarBackground;
         private Sprite healthBarForeground;
 
-        private Player owner;
+        private Creature owner;
 
-        public HealthBar(Player owner){
+        public HealthBar(Creature owner){
             this.owner = owner;
             healthBarBackground = new Box2DSprite(new Texture("healthbarbg.png"));
             healthBarForeground = new Box2DSprite(new Texture("healthbarfg.png"));
-            //healthBarBackground
+
             healthBarBackground.setSize(2 , 0.3f);
             healthBarForeground.setSize(2, 0.3f);
             healthBarForeground.setOrigin(0, 0);
 
-            update();
         }
+
         public void update(){
             healthBarBackground.setPosition(owner.getBody().getPosition().x - 1, owner.getBody().getPosition().y + 1.1f);
             healthBarForeground.setPosition(owner.getBody().getPosition().x - 1, owner.getBody().getPosition().y + 1.1f);
@@ -149,10 +215,10 @@ abstract public class Creature extends GameObject implements InputProcessor {
     }
 
     protected class NameBar{
-        Player owner;
+        Creature owner;
         BitmapFont font;
 
-        public NameBar(Player owner){
+        public NameBar(Creature owner){
             this.owner = owner;
 
             FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/Quicksand-Bold.ttf"));

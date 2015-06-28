@@ -13,15 +13,16 @@ import java.util.Objects;
  * Created by Johnnie Ho on 28-6-2015.
  */
 public class EntityManager {
-    private static Array<GameObject> objects= new Array();
-    private static Array<GameObject> updateObjects= new Array();
-    private static Array<GameObject> destroyObjects= new Array();
+    private static Array<GameObject> objects= new Array<>();
+    private static Array<GameObject> updateObjects= new Array<>();
+    private static Array<GameObject> destroyObjects= new Array<>();
+    private static Array<DisplayObject> displayObjects= new Array<>();
 
     public static void add(GameObject object){
         objects.add(object);
     }
 
-    public static void setToUpdate(Creature object){
+    public static void setToUpdate(GameObject object){
         add(object);
         updateObjects.add(object);
     }
@@ -42,5 +43,23 @@ public class EntityManager {
         for (GameObject object : updateObjects){
                 object.update(delta);
         }
+    }
+
+    public static void addToDisplay(DisplayObject object){
+        displayObjects.add(object);
+    }
+
+    public static void draw(Batch batch){
+        for (GameObject object : updateObjects){
+            object.draw(batch);
+        }
+        for (DisplayObject object : displayObjects){
+            object.update();
+            object.draw(batch);
+        }
+    }
+
+    public static void removeFromDisplay(DisplayObject object){
+        displayObjects.removeValue(object, true);
     }
 }

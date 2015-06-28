@@ -15,38 +15,48 @@ import javax.swing.text.html.parser.Entity;
 /**
  * Created by Johnnie Ho on 26-6-2015.
  */
-public class Bullet extends GameObject{
+public class Bullet extends Box2DSprite implements GameObject{
     World world;
+    Body body;
+
+    private float damage = 20;
+    private Creature owner;
 
     public Bullet(Texture texture, Player player, World world){
         super(texture);
-
         this.world = world;
+        this.owner = player;
+
         // reusable construction objects
         BodyDef bodyDef = new BodyDef();
         FixtureDef fixtureDef = new FixtureDef();
 
         // a ball
         bodyDef.type = BodyDef.BodyType.DynamicBody;
-        bodyDef.position.set(player.getBody().getPosition());
+        if(player.getLookingDirection() == Creature.DIRECTION.EAST)
+            bodyDef.position.set(player.getBody().getPosition().x+1f, player.getBody().getPosition().y);
+        else
+            bodyDef.position.set(player.getBody().getPosition().x-1f, player.getBody().getPosition().y);
         bodyDef.gravityScale = 0;
 
         PolygonShape shape = new PolygonShape();
-        shape.setAsBox(0.4f, 0.1f);
+        shape.setAsBox(0.2f, 0.05f);
 
         fixtureDef.shape = shape;
+        fixtureDef.density = 10f;
 
         body = world.createBody(bodyDef);
         body.createFixture(fixtureDef);
         body.setUserData(this);
+        body.setFixedRotation(true);
 
         body.setBullet(true);
         if(player.getLookingDirection() == Creature.DIRECTION.EAST) {
             body.setTransform(body.getPosition(), (float) Math.toRadians(180));
-            body.applyLinearImpulse(new Vector2(10, 0), body.getPosition(), true);
+            body.applyLinearImpulse(new Vector2(3f, 0), body.getPosition(), true);
         }
         else
-            body.applyLinearImpulse(new Vector2(-10, 0), body.getPosition(), true);
+            body.applyLinearImpulse(new Vector2(-3f, 0), body.getPosition(), true);
 
         shape.dispose();
     }
@@ -56,11 +66,39 @@ public class Bullet extends GameObject{
         if(body.getUserData() == null)
            EntityManager.setToDestroy(this);
 
+        if(body.getUserData() instanceof Player){
+            Player player = (Player)body.getUserData();
+            if(player != this.owner) {
+                player.hit(this);
+                EntityManager.setToDestroy(this);
+            }
+        }
 
+    }
+
+    @Override
+    public Body getBody() {
+        return body;
     }
 
     @Override
     public void update(float delta) {
 
+    }
+
+    public float getDamage() {
+        return damage;
+    }
+
+    public void setDamage(float damage) {
+        this.damage = damage;
+    }
+
+    public Creature getOwner() {
+        return owner;
+    }
+
+    public void setOwner(Creature owner) {
+        this.owner = owner;
     }
 }

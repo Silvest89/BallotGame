@@ -23,6 +23,8 @@ import net.dermetfan.gdx.graphics.g2d.Box2DSprite;
 import net.dermetfan.gdx.physics.box2d.Box2DMapObjectParser;
 import net.dermetfan.gdx.physics.box2d.Box2DUtils;
 
+import java.util.ArrayList;
+
 
 /**
  * Created by Johnnie Ho on 24-6-2015.
@@ -39,12 +41,13 @@ public class GameScreen implements Screen, ContactFilter, ContactListener{
     private OrthogonalTiledMapRenderer tiledMapRenderer;
     public Box2DMapObjectParser parser;
 
-    private Player player;
+    public static ArrayList<Creature> playerList = new ArrayList<>();
 
     public GameScreen(ShipBallot game){
         this.game = game;
     }
 
+    Player player;
     Batch batch;
 
     private Array<Body> tmpBodies = new Array<Body>();
@@ -81,7 +84,11 @@ public class GameScreen implements Screen, ContactFilter, ContactListener{
 
         player = new Player(this, animatedSprite, "Johnnie", world, camera);
         player.setupAnimation(playerAtlas);
-        world.setContactFilter(this);
+        playerList.add(player);
+        Player player2 = new Player(this, animatedSprite, "Kevin", world, camera);
+        player2.setupAnimation(playerAtlas);
+        playerList.add(player2);
+        //world.setContactFilter(this);
         world.setContactListener(this);
 
         TextManager.setBatch(batch);
@@ -110,9 +117,11 @@ public class GameScreen implements Screen, ContactFilter, ContactListener{
 
         batch.setProjectionMatrix(camera.combined);
         batch.begin();
-        AnimatedBox2DSprite.draw(batch, world);
-        player.draw(batch);
+        //for(Creature creature : playerList){
+            //creature.draw(batch);
+       // }
         Box2DSprite.draw(batch, world);
+        EntityManager.draw(batch);
         TextManager.Draw("FPS: " + Gdx.graphics.getFramesPerSecond() + " Time: " + FpsTimer.time, camera);
         batch.end();
 

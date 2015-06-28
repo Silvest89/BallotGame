@@ -23,29 +23,13 @@ import net.dermetfan.gdx.graphics.g2d.AnimatedSprite;
  */
 public class Player extends Creature{
 
-    World world;
-    boolean isMoving;
-    boolean isHolding;
-
-    private int experience;
-    private int tilePixels = 32;
-
     private Vector2 keyforce = new Vector2();
 
-    private float movementForce = 100;
-    private float jumpForce = 100;
-
-    private boolean canJump;
     OrthographicCamera camera;
 
-
     public Player(GameScreen game, AnimatedSprite animatedSprite, String name, World world, OrthographicCamera camera){
-        super(game, animatedSprite, name);
+        super(game, animatedSprite, name, world);
         this.camera = camera;
-        this.world = world;
-
-        this.experience = 0;
-        this.canJump = false;
 
         // reusable construction objects
         BodyDef bodyDef = new BodyDef();
@@ -53,16 +37,15 @@ public class Player extends Creature{
 
         // a ball
         bodyDef.type = BodyDef.BodyType.DynamicBody;
-        bodyDef.position.set(8,8);
+        bodyDef.position.set(8,4);
         bodyDef.fixedRotation = true;
 
         PolygonShape shape = new PolygonShape();
         shape.setAsBox(1f, 1f);
 
         fixtureDef.shape = shape;
-        fixtureDef.density = 3.0f;
+        fixtureDef.density = 2.0f;
         fixtureDef.restitution = 0f;
-        fixtureDef.friction = 0.8f;
 
         body = world.createBody(bodyDef);
         body.createFixture(fixtureDef);
@@ -70,9 +53,6 @@ public class Player extends Creature{
 
         shape.dispose();
 
-        healthBar = new HealthBar(this);
-        nameBar = new NameBar(this);
-        //this.play();
         EntityManager.setToUpdate(this);
     }
 
@@ -80,17 +60,14 @@ public class Player extends Creature{
         this.southStanding = new Animation(1 / 4f, playerAtlas.findRegions("southStanding"));
         this.westStanding = new Animation(1 / 4f, playerAtlas.findRegions("westStanding"));
         this.eastStanding = new Animation(1 / 4f, playerAtlas.findRegions("eastStanding"));
-        this.northStanding = new Animation(1 / 4f, playerAtlas.findRegions("northStanding"));
 
         this.south = new Animation(1 / 4f, playerAtlas.findRegions("south"));
         this.west = new Animation(1 / 4f, playerAtlas.findRegions("west"));
         this.east = new Animation(1 / 4f, playerAtlas.findRegions("east"));
-        this.north = new Animation(1 / 4f, playerAtlas.findRegions("north"));
 
         this.south.setPlayMode(Animation.PlayMode.LOOP);
         this.west.setPlayMode(Animation.PlayMode.LOOP);
         this.east.setPlayMode(Animation.PlayMode.LOOP);
-        this.north.setPlayMode(Animation.PlayMode.LOOP);
     }
 
     @Override
@@ -101,7 +78,7 @@ public class Player extends Creature{
     @Override
     public void update(float delta){
         super.update(delta);
-        body.applyForceToCenter(keyforce, true);
+        getBody().applyForceToCenter(keyforce, true);
 
         setAnimationTime(getAnimationTime() + (getSpeed() * delta / 100));
         if(movingDirection != null)
@@ -135,15 +112,15 @@ public class Player extends Creature{
                 break;
             }
             case Input.Keys.SPACE:{
-                if(canJump) {
-                    body.applyLinearImpulse(0, jumpForce, body.getWorldCenter().x, body.getWorldCenter().y, true);
-                    canJump = false;
+                if(canJump()) {
+                    getBody().applyLinearImpulse(0, getJumpForce(), getBody().getWorldCenter().x, getBody().getWorldCenter().y, true);
+                    setCanJump(false);
                 }
 
                 break;
             }
             case Input.Keys.SHIFT_LEFT:{
-                Bullet bullet = new Bullet(new Texture("bullet.png"), this, world);
+                Bullet bullet = new Bullet(new Texture("bullet.png"), this, getWorld());
                 EntityManager.add(bullet);
                 break;
             }
@@ -204,19 +181,23 @@ public class Player extends Creature{
     @Override
     public void handleCollision(Body body){
         if(game.parser.getBodies().get("ground") == body) {
-            canJump = true;
+            setCanJump(true);
+        }
+        if(body.getUserData() != null){
+            if(body.getUserData() instanceof Creature)
+                setCanJump(true);
         }
     }
 
     public void movePlayer(DIRECTION direction){
         switch(direction){
             case WEST:{
-                keyforce.x = -movementForce;
+                keyforce.x = -getMovementForce();
                 movingDirection = DIRECTION.WEST;
                 break;
             }
             case EAST:{
-                keyforce.x = movementForce;
+                keyforce.x = getMovementForce();
                 movingDirection = DIRECTION.EAST;
                 break;
             }
