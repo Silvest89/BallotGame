@@ -1,5 +1,6 @@
 package eu.silvenia.shipballot.screens;
 
+import com.badlogic.ashley.core.Engine;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
@@ -10,18 +11,13 @@ import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
-import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.viewport.*;
 import eu.silvenia.shipballot.*;
 import eu.silvenia.shipballot.creature.Creature;
 import eu.silvenia.shipballot.creature.Player;
-import eu.silvenia.shipballot.data.Assets;
-import net.dermetfan.gdx.graphics.g2d.AnimatedBox2DSprite;
 import net.dermetfan.gdx.graphics.g2d.AnimatedSprite;
 import net.dermetfan.gdx.graphics.g2d.Box2DSprite;
 import net.dermetfan.gdx.physics.box2d.Box2DMapObjectParser;
-import net.dermetfan.gdx.physics.box2d.Box2DUtils;
 
 import java.util.ArrayList;
 
@@ -34,6 +30,7 @@ public class GameScreen implements Screen, ContactFilter, ContactListener{
 
     public World world;
     private Box2DDebugRenderer debugRenderer;
+    public Engine engine;
 
     ShipBallot game;
 
@@ -56,7 +53,11 @@ public class GameScreen implements Screen, ContactFilter, ContactListener{
 
     @Override
     public void show() {
+
+        engine = new Engine();
+
         batch = new SpriteBatch();
+        world = new World(new Vector2(0f, -9.81f), false);
 
         float w = Gdx.graphics.getWidth();
         float h = Gdx.graphics.getHeight();
@@ -66,7 +67,6 @@ public class GameScreen implements Screen, ContactFilter, ContactListener{
         camera = new OrthographicCamera();
 
         debugRenderer = new Box2DDebugRenderer();
-        world = new World(new Vector2(0f, -9.81f), false);
 
         TiledMap map = new TmxMapLoader().load("map/untitled.tmx");
 
@@ -88,6 +88,7 @@ public class GameScreen implements Screen, ContactFilter, ContactListener{
         Player player2 = new Player(this, animatedSprite, "Kevin", world, camera);
         player2.setupAnimation(playerAtlas);
         playerList.add(player2);
+
         //world.setContactFilter(this);
         world.setContactListener(this);
 
@@ -95,7 +96,6 @@ public class GameScreen implements Screen, ContactFilter, ContactListener{
 
         Gdx.input.setInputProcessor(player);
         TextManager.setBatch(batch);
-        System.out.println(parser.getBodies());
     }
 
     @Override
@@ -109,7 +109,6 @@ public class GameScreen implements Screen, ContactFilter, ContactListener{
         Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-       // player.update(delta);
 
         camera.position.set(player.getBody().getPosition().x, player.getBody().getPosition().y, 0);
         camera.update();
@@ -118,15 +117,12 @@ public class GameScreen implements Screen, ContactFilter, ContactListener{
 
         batch.setProjectionMatrix(camera.combined);
         batch.begin();
-        //for(Creature creature : playerList){
-            //creature.draw(batch);
-       // }
         Box2DSprite.draw(batch, world);
         EntityManager.draw(batch);
         TextManager.Draw("FPS: " + Gdx.graphics.getFramesPerSecond() + " Time: " + FpsTimer.time, camera);
         batch.end();
 
-        //debugRenderer.render(world, camera.combined);
+        debugRenderer.render(world, camera.combined);
     }
 
     @Override
@@ -157,17 +153,7 @@ public class GameScreen implements Screen, ContactFilter, ContactListener{
     }
 
     @Override
-    public boolean shouldCollide(Fixture fixtureA, Fixture fixtureB) {
-        if(fixtureA.getBody().getUserData() == null || fixtureB.getBody().getUserData() == null) {
-            return true;
-        }
-
-        return false;
-    }
-
-    @Override
     public void beginContact(Contact contact) {
-
         GameObject object = (GameObject) contact.getFixtureA().getBody().getUserData();
         GameObject object2 = (GameObject) contact.getFixtureB().getBody().getUserData();
 
@@ -192,4 +178,49 @@ public class GameScreen implements Screen, ContactFilter, ContactListener{
     public void postSolve(Contact contact, ContactImpulse impulse) {
 
     }
+
+    @Override
+    public boolean shouldCollide(Fixture fixtureA, Fixture fixtureB) {
+        if(fixtureA.getBody().getUserData() == null || fixtureB.getBody().getUserData() == null) {
+            return true;
+        }
+        return false;
+    }
+
+    /*@Override
+    public boolean shouldCollide(Fixture fixtureA, Fixture fixtureB) {
+        if(fixtureA.getBody().getUserData() == null || fixtureB.getBody().getUserData() == null) {
+            return true;
+        }
+
+        return false;
+    }
+
+    @Override
+    public void beginContact(Contact contact) {
+
+        //Entity entity = (Entity) contact.getFixtureA().getBody().getUserData();
+        //Entity entity2 = (Entity) contact.getFixtureB().getBody().getUserData();
+
+        /*if(entity != null) {
+            object.handleCollision(contact.getFixtureB().getBody());
+        }
+        if(object2 != null)
+            object2.handleCollision(contact.getFixtureA().getBody());
+    }
+
+    @Override
+    public void endContact(Contact contact) {
+
+    }
+
+    @Override
+    public void preSolve(Contact contact, Manifold oldManifold) {
+
+    }
+
+    @Override
+    public void postSolve(Contact contact, ContactImpulse impulse) {
+
+    }*/
 }

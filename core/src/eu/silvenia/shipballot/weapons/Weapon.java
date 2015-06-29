@@ -1,5 +1,6 @@
 package eu.silvenia.shipballot.weapons;
 
+import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
@@ -27,6 +28,8 @@ public class Weapon {
     private float reloadTimer;
     private boolean canFire;
 
+    private float weaponSpeed;
+
     WeaponType weaponType;
     public Weapon(Creature owner, WeaponType weaponType){
         this.weaponType = weaponType;
@@ -39,16 +42,19 @@ public class Weapon {
             }
             case RIFLE:{
                 reloadTime = 2.6f * 60;
+                break;
             }
             case SHOTGUN:{
-                reloadTime = 2.4f * 60;
+                reloadTime = 2.3f * 60;
+                weaponSpeed = 3.5f;
+                break;
             }
         }
         reload();
     }
 
     public void update(){
-        if(reloadTimer > 0)
+        if(!canFire && reloadTimer > 0)
             reloadTimer -= 1;
 
         if(!canFire && reloadTimer <= 0){
@@ -58,9 +64,9 @@ public class Weapon {
 
     public void fire(){
         if(canFire) {
+            canFire = false;
             //new Bullet(new Texture("bullet.png"), this).fireShotgun();
             fireShotgun();
-            canFire = false;
         }
     }
 
@@ -70,6 +76,8 @@ public class Weapon {
     }
 
     public void fireShotgun(){
+        Entity entity = new Entity();
+
         Bullet bullet = new Bullet(new Texture("bullet.png"), this);
         Body body;
         BodyDef bodyDef = new BodyDef();
@@ -78,9 +86,9 @@ public class Weapon {
         // a ball
         bodyDef.type = BodyDef.BodyType.DynamicBody;
         if(owner.getLookingDirection() == Creature.DIRECTION.EAST)
-            bodyDef.position.set(owner.getBody().getPosition().x+1.2f, owner.getBody().getPosition().y);
+            bodyDef.position.set(owner.getBody().getPosition().x+1.5f, owner.getBody().getPosition().y);
         else
-            bodyDef.position.set(owner.getBody().getPosition().x-1.2f, owner.getBody().getPosition().y);
+            bodyDef.position.set(owner.getBody().getPosition().x-1.5f, owner.getBody().getPosition().y);
         bodyDef.gravityScale = 0;
 
         PolygonShape shape = new PolygonShape();
@@ -99,18 +107,18 @@ public class Weapon {
 
         if(owner.getLookingDirection() == Creature.DIRECTION.EAST) {
             body.setTransform(body.getPosition().x, body.getPosition().y, (float)Math.toRadians(180));
-            body.applyLinearImpulse(new Vector2(2f, 0),body.getPosition(), true);
+            body.applyLinearImpulse(new Vector2(weaponSpeed *(float)Math.sin(-Math.toRadians(270)), weaponSpeed * (float)Math.cos(Math.toRadians(270))), body.getPosition(), true);
         }else
-            body.applyLinearImpulse(new Vector2(-2f, 0), body.getPosition(), true);
+            body.applyLinearImpulse(new Vector2(-(weaponSpeed * (float) Math.sin(-Math.toRadians(270))), weaponSpeed * (float) Math.cos(Math.toRadians(270))), body.getPosition(), true);
 
         bullet = new Bullet(new Texture("bullet.png"), this);
 
         // a ball
         bodyDef.type = BodyDef.BodyType.DynamicBody;
         if(owner.getLookingDirection() == Creature.DIRECTION.EAST)
-            bodyDef.position.set(owner.getBody().getPosition().x+1.2f, owner.getBody().getPosition().y+0.8f);
+            bodyDef.position.set(owner.getBody().getPosition().x+1.5f, owner.getBody().getPosition().y+0.8f);
         else
-            bodyDef.position.set(owner.getBody().getPosition().x-1.2f, owner.getBody().getPosition().y+0.8f);
+            bodyDef.position.set(owner.getBody().getPosition().x-1.5f, owner.getBody().getPosition().y+0.8f);
         bodyDef.gravityScale = 0;
 
         shape = new PolygonShape();
@@ -129,10 +137,10 @@ public class Weapon {
         //body.applyLinearImpulse(new Vector2(2 *(float)Math.sin(-Math.toRadians(290)), 2 * (float)Math.cos(Math.toRadians(290))), body.getPosition(), true);
         if(owner.getLookingDirection() == Creature.DIRECTION.EAST) {
             body.setTransform(body.getPosition().x, body.getPosition().y, (float)Math.toRadians(200));
-            body.applyLinearImpulse(new Vector2(2 *(float)Math.sin(-Math.toRadians(290)), 2 * (float)Math.cos(Math.toRadians(290))), body.getPosition(), true);
+            body.applyLinearImpulse(new Vector2(weaponSpeed *(float)Math.sin(-Math.toRadians(290)), weaponSpeed * (float)Math.cos(Math.toRadians(290))), body.getPosition(), true);
         }else {
             body.setTransform(body.getPosition().x, body.getPosition().y, (float) -Math.toRadians(200));
-            body.applyLinearImpulse(new Vector2(-(2 * (float) Math.sin(-Math.toRadians(290))), 2 * (float) Math.cos(Math.toRadians(290))), body.getPosition(), true);
+            body.applyLinearImpulse(new Vector2(-(weaponSpeed * (float) Math.sin(-Math.toRadians(290))), weaponSpeed * (float) Math.cos(Math.toRadians(290))), body.getPosition(), true);
         }
     }
 }

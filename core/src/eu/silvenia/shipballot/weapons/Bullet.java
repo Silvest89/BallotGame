@@ -38,10 +38,8 @@ public class Bullet extends Box2DSprite implements GameObject{
 
         if(body.getUserData() instanceof Player){
             Player player = (Player)body.getUserData();
-            if(player != this.owner) {
-                player.hit(this);
-                EntityManager.setToDestroy(this);
-            }
+            player.hit(this);
+            EntityManager.setToDestroy(this);
         }
 
     }

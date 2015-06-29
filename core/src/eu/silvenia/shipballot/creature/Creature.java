@@ -24,7 +24,7 @@ abstract public class Creature extends Box2DSprite implements GameObject, InputP
     private boolean canJump;
     private int experience;
 
-    private float movementForce = 75;
+    private float movementForce = 50;
     private float jumpForce = 60;
     private float speed;
     private float animationTime;
@@ -40,6 +40,7 @@ abstract public class Creature extends Box2DSprite implements GameObject, InputP
     }
     private String name;
 
+    private int level;
     private int health;
     private int maxHealth;
 
@@ -67,6 +68,8 @@ abstract public class Creature extends Box2DSprite implements GameObject, InputP
         healthBar = new HealthBar(this);
         nameBar = new NameBar(this);
     }
+
+
 
     public float getSpeed() {
         return speed;
@@ -157,14 +160,16 @@ abstract public class Creature extends Box2DSprite implements GameObject, InputP
     }
 
     public void hit(Bullet bullet){
-        double damage = (Math.random()*15) + bullet.getDamage();
-        damage = HelperTools.round(damage, 2);
+        int damage = (int)((Math.random()*15) + bullet.getDamage());
         health -= damage;
-        new DamageText(Double.toString(damage), getBody().getPosition().x, getBody().getPosition().y);
+        new DamageText(Integer.toString(damage), getBody().getPosition().x, getBody().getPosition().y);
         if(health <= 0) {
             health = 0;
-            if(bullet.getOwner() != null)
+            if(bullet.getOwner() != null) {
+                new DamageText(Integer.toString(experience), bullet.getOwner().getBody().getPosition().x, bullet.getOwner().getBody().getPosition().y);
                 bullet.getOwner().addExperience(getExperience());
+
+            }
             EntityManager.setToDestroy(this);
             GameScreen.playerList.remove(this);
         }

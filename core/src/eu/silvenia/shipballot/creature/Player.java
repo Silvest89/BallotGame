@@ -1,8 +1,8 @@
 package eu.silvenia.shipballot.creature;
 
+import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
@@ -10,7 +10,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.*;
 import eu.silvenia.shipballot.EntityManager;
-import eu.silvenia.shipballot.weapons.Bullet;
+import eu.silvenia.shipballot.Updateable;
 import eu.silvenia.shipballot.screens.GameScreen;
 
 import eu.silvenia.shipballot.weapons.Weapon;
@@ -20,7 +20,7 @@ import net.dermetfan.gdx.graphics.g2d.AnimatedSprite;
 /**
  * Created by Johnnie Ho on 24-6-2015.
  */
-public class Player extends Creature{
+public class Player extends Creature implements Updateable{
 
     private Vector2 keyforce = new Vector2();
 
@@ -57,6 +57,7 @@ public class Player extends Creature{
         shape.dispose();
 
         EntityManager.setToUpdate(this);
+
     }
 
     public void setupAnimation(TextureAtlas playerAtlas){
