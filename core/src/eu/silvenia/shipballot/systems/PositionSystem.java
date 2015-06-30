@@ -31,8 +31,9 @@ public class PositionSystem extends IteratingSystem {
         }
 
         if (spriteCom != null) {
-            Sprite sprite = spriteCom.sprite;
-            sprite.setPosition(positionCom.x - sprite.getWidth() / 2, positionCom.y - sprite.getHeight() / 2);
+            for (Sprite sprite : spriteCom.spritesList) {
+                sprite.setPosition(positionCom.x - sprite.getWidth() / 2, positionCom.y - sprite.getHeight() / 2);
+            }
         }
     }
 }

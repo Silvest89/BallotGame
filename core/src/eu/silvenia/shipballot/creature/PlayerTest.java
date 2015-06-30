@@ -18,7 +18,7 @@ public class PlayerTest implements Updateable, InputProcessor {
         EAST,
         WEST
     }
-    private float movementForce = 50;
+    private float movementForce = 40;
     private float animationTime = 0;
     private float jumpForce = 60;
 
@@ -43,12 +43,12 @@ public class PlayerTest implements Updateable, InputProcessor {
         switch(Mappers.playerData.get(entity).movingDirection){
             case WEST:{
                 setLookingDirection(DIRECTION.WEST);
-                Mappers.spriteMap.get(entity).sprite.setRegion(west.getKeyFrame(animationTime));
+                Mappers.spriteMap.get(entity).spritesList.first().setRegion(west.getKeyFrame(animationTime));
                 break;
             }
             case EAST:{
                 setLookingDirection(DIRECTION.EAST);
-                Mappers.spriteMap.get(entity).sprite.setRegion(east.getKeyFrame(animationTime));
+                Mappers.spriteMap.get(entity).spritesList.first().setRegion(east.getKeyFrame(animationTime));
                 break;
             }
         }
@@ -169,11 +169,11 @@ public class PlayerTest implements Updateable, InputProcessor {
 
         switch(Mappers.playerData.get(entity).movingDirection){
             case WEST:{
-                Mappers.spriteMap.get(entity).sprite.setRegion(westStanding.getKeyFrame(0));
+                Mappers.spriteMap.get(entity).spritesList.first().setRegion(westStanding.getKeyFrame(0));
                 break;
             }
             case EAST:{
-                Mappers.spriteMap.get(entity).sprite.setRegion(eastStanding.getKeyFrame(0));
+                Mappers.spriteMap.get(entity).spritesList.first().setRegion(eastStanding.getKeyFrame(0));
                 break;
             }
         }

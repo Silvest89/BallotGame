@@ -8,6 +8,7 @@ import eu.silvenia.shipballot.creature.PlayerTest;
  * Created by Johnnie Ho on 29-6-2015.
  */
 public class PlayerDataComponent extends CreatureDataComponent {
+    public String name = "John Doe";
     public long level = 1;
     public long money = 0;
     public long health = 100;

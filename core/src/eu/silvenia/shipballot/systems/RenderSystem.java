@@ -3,6 +3,7 @@ package eu.silvenia.shipballot.systems;
 import com.badlogic.ashley.core.*;
 import com.badlogic.ashley.systems.SortedIteratingSystem;
 import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import eu.silvenia.shipballot.Mappers;
 import eu.silvenia.shipballot.systems.Components.*;
 
@@ -19,6 +20,8 @@ public class RenderSystem extends SortedIteratingSystem {
 
     @Override
     protected void processEntity(Entity entity, float deltaTime) {
-        Mappers.spriteMap.get(entity).sprite.draw(batch);
+        for (Sprite sprite : Mappers.spriteMap.get(entity).spritesList) {
+            sprite.draw(batch);
+        }
     }
 }

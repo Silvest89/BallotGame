@@ -2,8 +2,10 @@ package eu.silvenia.shipballot;
 
 import com.badlogic.ashley.core.Engine;
 import com.badlogic.ashley.core.Entity;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.utils.Array;
@@ -13,6 +15,7 @@ import eu.silvenia.shipballot.systems.*;
 import eu.silvenia.shipballot.systems.Components.*;
 import eu.silvenia.shipballot.weapons.Weapon;
 import net.dermetfan.gdx.graphics.g2d.AnimatedSprite;
+import net.dermetfan.gdx.graphics.g2d.Box2DSprite;
 
 /**
  * Created by Johnnie Ho on 29-6-2015.
@@ -33,8 +36,12 @@ public class AshleyEntityManager {
         RenderSystem renderSystem = new RenderSystem(batch);
         PositionSystem positionSystem = new PositionSystem();
         ShootWeaponSystem shootWeaponSystem = new ShootWeaponSystem(engine, world);
+        HealthBarSystem healthBarSystem = new HealthBarSystem();
+        NameBarSystem nameBarSystem = new NameBarSystem(batch);
         CollisionManager collisionSystem         = new CollisionManager(engine, world);
+        engine.addSystem(healthBarSystem);
         engine.addSystem(positionSystem);
+        engine.addSystem(nameBarSystem);
         engine.addSystem(movementSystem);
         engine.addSystem(renderSystem);
 
@@ -81,7 +88,31 @@ public class AshleyEntityManager {
                 .add(new WeaponDataComponent(Weapon.WeaponType.PISTOL))
                 .add(new ShootingComponent());
 
+        Entity healthBar = new Entity();
+        AttachedComponent attachedComponent = new AttachedComponent(player);
+        PositionComponent positionComponent = new PositionComponent(0, 0, 0);
+        HealthBarComponent healthBarComponent = new HealthBarComponent();
+
+        Sprite sprite = new Sprite(new Texture("healthbarbg.png"));
+        Sprite sprite2 = new Sprite(new Texture("healthbarfg.png"));
+
+        sprite.setSize(2 , 0.3f);
+        sprite2.setSize(2, 0.3f);
+        sprite2.setOrigin(0, 0);
+
+        SpriteComponent spriteComponent = new SpriteComponent(sprite, sprite2);
+
+        healthBar.add(attachedComponent).add(positionComponent).add(spriteComponent).add(new RenderableComponent()).add(healthBarComponent);
+
+        Entity nameBar = new Entity();
+        attachedComponent = new AttachedComponent(player);
+        positionComponent = new PositionComponent(0, 0, 0);
+        NameBarComponent nameBarComponent = new NameBarComponent();
+        nameBar.add(attachedComponent).add(positionComponent).add(nameBarComponent).add(new RenderableComponent());
+
         engine.addEntity(player);
+        engine.addEntity(healthBar);
+        engine.addEntity(nameBar);
         AshleyEntityManager.add(player);
         AshleyEntityManager.add(playerTest);
     }
