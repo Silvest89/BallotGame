@@ -18,16 +18,16 @@ public class WeaponDataComponent extends Component{
         switch(weaponType){
             case PISTOL:{
                 reloadTime = 2.0f;
-                weaponSpeed = 3.5f;
+                weaponSpeed = 7f;
                 break;
             }
             case RIFLE:{
-                reloadTime = 4.8f * 60;
+                reloadTime = 8f * 60;
                 break;
             }
             case SHOTGUN:{
                 reloadTime = 2.3f * 60;
-                weaponSpeed = 4.5f;
+                weaponSpeed = 5.5f;
                 break;
             }
         }

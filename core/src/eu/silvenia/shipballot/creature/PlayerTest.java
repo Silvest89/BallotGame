@@ -97,7 +97,8 @@ public class PlayerTest implements Updateable, InputProcessor {
                 break;
             }
             case Input.Keys.SHIFT_LEFT:{
-                Mappers.weaponMap.get(entity).canFire = true;
+                if(Mappers.weaponMap.get(entity).reloadTimer >= Mappers.weaponMap.get(entity).getReloadTime())
+                    Mappers.weaponMap.get(entity).canFire = true;
             }
         }
         return false;

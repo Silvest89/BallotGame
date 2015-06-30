@@ -56,14 +56,14 @@ public class AshleyEntityManager {
 
         // a ball
         bodyDef.type = BodyDef.BodyType.DynamicBody;
-        bodyDef.position.set(8,4);
+        bodyDef.position.set(3, 15);
         bodyDef.fixedRotation = true;
 
         PolygonShape shape = new PolygonShape();
         shape.setAsBox(1f, 1f);
 
         fixtureDef.shape = shape;
-        fixtureDef.density = 2.0f;
+        fixtureDef.density = 2.5f;
         fixtureDef.restitution = 0f;
 
         body = world.createBody(bodyDef);
