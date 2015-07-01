@@ -18,9 +18,9 @@ public class PlayerTest implements Updateable, InputProcessor {
         EAST,
         WEST
     }
-    private float movementForce = 40;
+    private float movementForce = 60;
     private float animationTime = 0;
-    private float jumpForce = 60;
+    private float jumpForce = 100;
 
     protected Animation southStanding, westStanding, eastStanding, northStanding;
     protected Animation south, west, east, north;

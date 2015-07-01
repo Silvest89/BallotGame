@@ -51,7 +51,7 @@ public class AshleyEntityManager {
         TextureAtlas playerAtlas = new TextureAtlas("player.pack");
 
         AnimatedSprite animatedSprite = new AnimatedSprite(new Animation(1 / 4f, playerAtlas.findRegions("southStanding")));
-        animatedSprite.setSize(2f, 2f);
+        animatedSprite.setSize(1.8f, 1.8f);
         animatedSprite.setOrigin(animatedSprite.getWidth() / 2, animatedSprite.getHeight() / 2);
         player = new Entity();
         playerTest = new PlayerTest(player);
@@ -67,7 +67,7 @@ public class AshleyEntityManager {
         bodyDef.fixedRotation = true;
 
         PolygonShape shape = new PolygonShape();
-        shape.setAsBox(1f, 1f);
+        shape.setAsBox(0.9f, 0.9f);
 
         fixtureDef.shape = shape;
         fixtureDef.density = 2.5f;
@@ -154,5 +154,4 @@ public class AshleyEntityManager {
         }
         destroyEntities.clear();
     }
-
 }

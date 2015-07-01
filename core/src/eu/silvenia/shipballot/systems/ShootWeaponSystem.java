@@ -12,6 +12,7 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 import eu.silvenia.shipballot.AshleyEntityManager;
+import eu.silvenia.shipballot.BodyGenerator;
 import eu.silvenia.shipballot.Mappers;
 import eu.silvenia.shipballot.PhysicsManager;
 import eu.silvenia.shipballot.creature.Creature;
@@ -37,7 +38,8 @@ public class ShootWeaponSystem extends IteratingSystem {
     public void processEntity(Entity entity, float deltaTime) {
         float reloadTime = Mappers.weaponMap.get(entity).getReloadTime();
         if(Mappers.weaponMap.get(entity).canFire && Mappers.weaponMap.get(entity).reloadTimer >= reloadTime){
-            Entity eBullet = new Entity();
+            BodyGenerator.generateBullet(world, engine, entity, 270 , 1.5f);
+           /* Entity eBullet = new Entity();
             Body body2 = Mappers.bodyMap.get(entity).body;
             float weaponSpeed = Mappers.weaponMap.get(entity).getWeaponSpeed();
 
@@ -97,7 +99,7 @@ public class ShootWeaponSystem extends IteratingSystem {
             //body.applyLinearImpulse(new Vector2(-(weaponSpeed * (float) Math.sin(-Math.toRadians(270))), weaponSpeed * (float) Math.cos(Math.toRadians(270))), body.getPosition(), true);
 
             engine.addEntity(eBullet);
-            AshleyEntityManager.add(eBullet);
+            AshleyEntityManager.add(eBullet);*/
             Mappers.weaponMap.get(entity).canFire = false;
             Mappers.weaponMap.get(entity).reloadTimer = 0f;
         }

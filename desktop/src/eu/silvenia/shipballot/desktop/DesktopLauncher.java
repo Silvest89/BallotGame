@@ -10,6 +10,9 @@ public class DesktopLauncher {
 		config.width=ShipBallot.WIDTH; // sets window width
 		config.height=ShipBallot.HEIGHT;  // sets window height
 		config.resizable = false;
+		config.vSyncEnabled = false; // Setting to false disables vertical sync
+		config.foregroundFPS = 60; // Setting to 0 disables foreground fps throttling
+		config.backgroundFPS = 60; // Setting to 0 disables background fps throttling
 		new LwjglApplication(new ShipBallot(), config);
 	}
 }

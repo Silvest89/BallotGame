@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" orientation="orthogonal" renderorder="right-down" width="50" height="20" tilewidth="70" tileheight="70" nextobjectid="9">
- <tileset firstgid="1" name="Base" tilewidth="70" tileheight="146" tilecount="172">
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="50" height="20" tilewidth="70" tileheight="70" nextobjectid="41">
+ <tileset firstgid="1" name="Base" tilewidth="70" tileheight="146">
   <tile id="0">
    <image width="70" height="70" source="tiles/base/box.png"/>
   </tile>
@@ -518,7 +518,7 @@
    <image width="70" height="70" source="tiles/base/window.png"/>
   </tile>
  </tileset>
- <tileset firstgid="173" name="buildings" tilewidth="70" tileheight="70" tilecount="98">
+ <tileset firstgid="173" name="buildings" tilewidth="70" tileheight="70">
   <tile id="0">
    <image width="70" height="70" source="tiles/buildings/anemometer.png"/>
   </tile>
@@ -814,7 +814,7 @@
    <image width="70" height="70" source="tiles/buildings/windowOpen.png"/>
   </tile>
  </tileset>
- <tileset firstgid="271" name="candy" tilewidth="70" tileheight="70" tilecount="95">
+ <tileset firstgid="271" name="candy" tilewidth="70" tileheight="70">
   <tile id="0">
    <image width="70" height="70" source="tiles/candy/cake.png"/>
   </tile>
@@ -1101,7 +1101,7 @@
    <image width="70" height="70" source="tiles/candy/waffleWhite.png"/>
   </tile>
  </tileset>
- <tileset firstgid="366" name="ice" tilewidth="70" tileheight="70" tilecount="96">
+ <tileset firstgid="366" name="ice" tilewidth="70" tileheight="70">
   <tile id="0">
    <image width="70" height="70" source="tiles/ice/caneGreen.png"/>
   </tile>
@@ -1391,7 +1391,7 @@
    <image width="70" height="70" source="tiles/ice/tundraRight.png"/>
   </tile>
  </tileset>
- <tileset firstgid="462" name="mushroom" tilewidth="216" tileheight="72" tilecount="47">
+ <tileset firstgid="462" name="mushroom" tilewidth="216" tileheight="72">
   <tile id="0">
    <image width="216" height="72" source="tiles/mushroom/bush.png"/>
   </tile>
@@ -1534,7 +1534,7 @@
    <image width="70" height="70" source="tiles/mushroom/tinyShroom_tan.png"/>
   </tile>
  </tileset>
- <tileset firstgid="509" name="request" tilewidth="70" tileheight="70" tilecount="98">
+ <tileset firstgid="509" name="request" tilewidth="70" tileheight="70">
   <tile id="0">
    <image width="70" height="70" source="tiles/request/beam.png"/>
   </tile>
@@ -1832,35 +1832,75 @@
  </tileset>
  <layer name="Tilelaag 1" width="50" height="20">
   <data encoding="base64" compression="zlib">
-   eJztz0EKACAIBVHP5rpy0f3vkkInyCCJeTBb8YsAAAAA+FnzxusnkmJD90xqbJmHxQbdWeLOrZRKtQCKAyuj
+   eJz7y8jA8HcYYDEmhiEPQH4Y9cfgAaP+GFxg1B+DC9DbH3Y0Mpfe/rClkbmk+COYAKZEL7GYGv4YzACfP1wYEOHgRkc3kQPIjY9w6juFIkCqP5DjaDDFEyF/wNw9WNyLq9weavkcV7kN8gO1ysSBxk6jeFBhADcha+Y=
   </data>
  </layer>
  <objectgroup name="box2D">
-  <object id="2" name="ground2" type="fixture" x="0" y="1190">
-   <properties>
-    <property name="body" value="ground"/>
-    <property name="friction" value="0.5"/>
-   </properties>
-   <polyline points="0,0 980,0"/>
-  </object>
-  <object id="3" name="ground2" type="fixture" x="1260" y="1190">
-   <properties>
-    <property name="body" value="ground"/>
-    <property name="friction" value="0.5"/>
-   </properties>
-   <polyline points="0,0 2240,0"/>
-  </object>
   <object id="6" name="ground" type="body" x="1120" y="1260" width="70" height="70">
    <properties>
     <property name="body" value="StaticBody"/>
    </properties>
   </object>
-  <object id="7" name="upground" type="fixture" x="980" y="1190">
+  <object id="9" name="ground2" type="fixture" x="0" y="1190">
    <properties>
     <property name="body" value="ground"/>
     <property name="friction" value="0.3"/>
    </properties>
-   <polyline points="0,0 140,-140 280,0"/>
+   <polyline points="0,0 3503.03,0.909091"/>
+  </object>
+  <object id="16" name="ground2" type="fixture" x="700" y="700" width="560" height="70">
+   <properties>
+    <property name="body" value="ground"/>
+    <property name="friction" value="0.3"/>
+   </properties>
+  </object>
+  <object id="18" name="ground2" type="fixture" x="420" y="840" width="280" height="70">
+   <properties>
+    <property name="body" value="ground"/>
+    <property name="friction" value="0.3"/>
+   </properties>
+  </object>
+  <object id="19" name="ground2" type="fixture" x="1750" y="700" width="1260" height="70">
+   <properties>
+    <property name="body" value="ground"/>
+    <property name="friction" value="0.3"/>
+   </properties>
+  </object>
+  <object id="20" name="ground2" type="fixture" x="770" y="980" width="350" height="70">
+   <properties>
+    <property name="body" value="ground"/>
+    <property name="friction" value="0.3"/>
+   </properties>
+  </object>
+  <object id="24" name="ground2" type="fixture" x="490" y="1050" width="210" height="70">
+   <properties>
+    <property name="body" value="ground"/>
+    <property name="friction" value="0.3"/>
+   </properties>
+  </object>
+  <object id="27" name="ground2" type="fixture" x="912.121" y="875.758" width="51.5152" height="103.03">
+   <properties>
+    <property name="body" value="ground"/>
+    <property name="friction" value="0.3"/>
+   </properties>
+  </object>
+  <object id="35" name="ground2" type="fixture" x="0" y="63.6364" width="63.6364" height="1127.27">
+   <properties>
+    <property name="body" value="ground"/>
+    <property name="friction" value="0.3"/>
+   </properties>
+  </object>
+  <object id="36" name="ground2" type="fixture" x="-3.0303" y="0" width="3500" height="70">
+   <properties>
+    <property name="body" value="ground"/>
+    <property name="friction" value="0.3"/>
+   </properties>
+  </object>
+  <object id="37" name="ground2" type="fixture" x="3430.3" y="72.7273" width="70" height="1120">
+   <properties>
+    <property name="body" value="ground"/>
+    <property name="friction" value="0.3"/>
+   </properties>
   </object>
  </objectgroup>
 </map>
