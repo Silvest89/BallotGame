@@ -1,0 +1,23 @@
+
+test.png
+size: 512,128
+format: RGBA8888
+filter: Nearest,Nearest
+repeat: none
+menu_default
+  rotate: false
+  xy: 2, 2
+  size: 200, 82
+  split: 37, 36, 0, 82
+  pad: -1, -1, 18, 33
+  orig: 200, 82
+  offset: 0, 0
+  index: -1
+menu_pressed
+  rotate: false
+  xy: 204, 2
+  size: 200, 82
+  split: 32, 22, 0, 82
+  orig: 200, 82
+  offset: 0, 0
+  index: -1
