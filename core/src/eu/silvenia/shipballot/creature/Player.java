@@ -1,6 +1,5 @@
 package eu.silvenia.shipballot.creature;
 
-import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.Animation;
@@ -11,7 +10,7 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.*;
 import eu.silvenia.shipballot.EntityManager;
 import eu.silvenia.shipballot.Updateable;
-import eu.silvenia.shipballot.screens.GameScreen;
+import eu.silvenia.shipballot.screens.Game;
 
 import eu.silvenia.shipballot.weapons.Weapon;
 import net.dermetfan.gdx.graphics.g2d.AnimatedSprite;
@@ -28,7 +27,7 @@ public class Player extends Creature implements Updateable{
 
     Weapon weapon;
 
-    public Player(GameScreen game, AnimatedSprite animatedSprite, String name, World world, OrthographicCamera camera){
+    public Player(Game game, AnimatedSprite animatedSprite, String name, World world, OrthographicCamera camera){
         super(game, animatedSprite, name, world);
         this.camera = camera;
 

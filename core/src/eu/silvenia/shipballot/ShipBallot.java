@@ -1,16 +1,15 @@
 package eu.silvenia.shipballot;
 
-import com.badlogic.gdx.Game;
-import eu.silvenia.shipballot.screens.GameScreen;
+import eu.silvenia.shipballot.screens.Game;
 import eu.silvenia.shipballot.screens.MainMenu;
 import eu.silvenia.shipballot.screens.Splash;
 
-public class ShipBallot extends Game {
+public class ShipBallot extends com.badlogic.gdx.Game {
 	public static final String TITLE="Ship Ballot";
 	public static final int WIDTH=1280,HEIGHT=720;
 	Splash splashScreen;
 	MainMenu mainMenu;
-	GameScreen gameScreen;
+	Game game;
 
 	@Override
 	public void create() {
@@ -31,8 +30,8 @@ public class ShipBallot extends Game {
 	}
 
 	public void goToGame(){
-		gameScreen = new GameScreen(this);
+		game = new Game(this);
 
-		setScreen(gameScreen);
+		setScreen(game);
 	}
 }

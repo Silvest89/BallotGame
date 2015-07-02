@@ -2,6 +2,7 @@ package eu.silvenia.shipballot.screens;
 
 import com.badlogic.ashley.core.Engine;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -12,10 +13,17 @@ import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.*;
+import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
+import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.viewport.ExtendViewport;
+import com.badlogic.gdx.utils.viewport.StretchViewport;
 import eu.silvenia.shipballot.*;
 import eu.silvenia.shipballot.creature.Creature;
 import eu.silvenia.shipballot.creature.Player;
+import eu.silvenia.shipballot.data.Assets;
 import eu.silvenia.shipballot.systems.Components.BodyComponent;
 import eu.silvenia.shipballot.systems.Components.PositionComponent;
 import net.dermetfan.gdx.graphics.g2d.AnimatedSprite;
@@ -28,7 +36,7 @@ import java.util.ArrayList;
 /**
  * Created by Johnnie Ho on 24-6-2015.
  */
-public class GameScreen implements Screen{
+public class Game implements Screen{
     public static long currentTimeMillis;
 
     public World world;
@@ -44,7 +52,7 @@ public class GameScreen implements Screen{
 
     public static ArrayList<Creature> playerList = new ArrayList<>();
 
-    public GameScreen(ShipBallot game){
+    public Game(ShipBallot game){
         this.game = game;
     }
 
@@ -54,6 +62,19 @@ public class GameScreen implements Screen{
     private Array<Body> tmpBodies = new Array<Body>();
 
     public static float SCALE;
+
+    private Touchpad touchpad;
+    private Touchpad.TouchpadStyle touchpadStyle;
+    private Skin touchpadSkin;
+    private Drawable touchBackground;
+    private Drawable touchKnob;
+    private Stage stage;
+    private HUDSideBar hudStage;
+
+    private Skin skin = Assets.menuSkin;
+    Table table = new Table();
+    Button buttonPlay = new TextButton("Start Game", skin);
+
 
     @Override
     public void show() {
@@ -83,28 +104,35 @@ public class GameScreen implements Screen{
 
         TextureAtlas playerAtlas = new TextureAtlas("player.pack");
 
-        //AnimatedSprite animatedSprite = new AnimatedSprite(new Animation(1 / 4f, playerAtlas.findRegions("southStanding")));
+        //Create a touchpad skin
+        touchpadSkin = new Skin();
+        //Set background image
+        touchpadSkin.add("touchBackground", new Texture("touchBackground.png"));
+        //Set knob image
+        touchpadSkin.add("touchKnob", new Texture("touchKnob.png"));
+        //Create TouchPad Style
+        touchpadStyle = new Touchpad.TouchpadStyle();
+        //Create Drawable's from TouchPad skin
+        touchBackground = touchpadSkin.getDrawable("touchBackground");
+        touchKnob = touchpadSkin.getDrawable("touchKnob");
+        //Apply the Drawables to the TouchPad Style
+        touchpadStyle.background = touchBackground;
+        touchpadStyle.knob = touchKnob;
+        //Create new TouchPad with the created style
+        touchpad = new Touchpad(10, touchpadStyle);
+        //setBounds(x,y,width,height)
+        touchpad.setBounds(15, 15, 200, 200);
 
-        //player = new Player(this, animatedSprite, "Johnnie", world, camera);
-        //player.setupAnimation(playerAtlas);
-        //playerList.add(player);
-        //Player player2 = new Player(this, animatedSprite, "Kevin", world, camera);
-        //player2.setupAnimation(playerAtlas);
-        //playerList.add(player2);
+        hudStage = new HUDSideBar(AshleyEntityManager.playerTest);
 
-        //world.setContactFilter(this);
-        //world.setContactListener(this);
+        stage = new Stage();
+        stage.addActor(touchpad);
+        InputMultiplexer inputMultiplexer = new InputMultiplexer();
+        inputMultiplexer.addProcessor(AshleyEntityManager.playerTest);
+        inputMultiplexer.addProcessor(stage);
+        Gdx.input.setInputProcessor(inputMultiplexer);
 
         TextManager.setBatch(batch);
-
-        Gdx.input.setInputProcessor(AshleyEntityManager.playerTest);
-        TextManager.setBatch(batch);
-
-        //sprite.setSize(.5f * 2, 1 * 2);
-        //sprite.setOrigin(sprite.getWidth() / 2, sprite.getHeight() / 2);
-        //sprite.setPosition(body.getPosition().x - sprite.getWidth() / 2, body.getPosition().y - sprite.getHeight() / 2);
-
-
     }
 
     @Override
@@ -118,7 +146,7 @@ public class GameScreen implements Screen{
         Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-
+        //Gdx.gl.glViewport( 0,0,Gdx.graphics.getWidth()-200,Gdx.graphics.getHeight() );
         //camera.position.set(player.getBody().getPosition().x, player.getBody().getPosition().y, 0);
         camera.position.set(AshleyEntityManager.player.getComponent(BodyComponent.class).body.getPosition().x, AshleyEntityManager.player.getComponent(BodyComponent.class).body.getPosition().y, 0);
         camera.update();
@@ -128,12 +156,29 @@ public class GameScreen implements Screen{
         batch.setProjectionMatrix(camera.combined);
         batch.begin();
         ashleyEntityManager.update(delta);
-        //Box2DSprite.draw(batch, world);
-        //EntityManager.draw(batch);
-        TextManager.Draw("FPS: " + Gdx.graphics.getFramesPerSecond() + " Time: " + FpsTimer.time, camera);
         batch.end();
 
+        stage.act(Gdx.graphics.getDeltaTime());
+        stage.draw();
+        if(touchpad.isTouched()) {
+            System.out.println(touchpad.getKnobPercentX() + " " + touchpad.getKnobPercentY());
+            if(touchpad.getKnobPercentY() != 0.0 && touchpad.getKnobPercentX() != 0.0) {
+                if (touchpad.getKnobPercentX() > -0.75f && touchpad.getKnobPercentX() < 0.75f && touchpad.getKnobPercentY() > 0.65f)
+                    System.out.println("UP");
+                if (touchpad.getKnobPercentX() > -0.75f && touchpad.getKnobPercentX() < 0.75f && touchpad.getKnobPercentY() < -0.65f)
+                    System.out.println("DOWN");
+                if (touchpad.getKnobPercentY() > -0.75f && touchpad.getKnobPercentY() < 0.75f && touchpad.getKnobPercentX() > 0.65f)
+                    System.out.println("LEFT");
+                if (touchpad.getKnobPercentY() > -0.75f && touchpad.getKnobPercentY() < 0.75f && touchpad.getKnobPercentX() < -0.65f)
+                    System.out.println("RIGHT");
+            }
+        }
         debugRenderer.render(world, camera.combined);
+
+        stage.getBatch().setProjectionMatrix(camera.combined);
+        //Gdx.gl.glViewport( Gdx.graphics.getWidth() - 200,0, 200,Gdx.graphics.getHeight() );
+        hudStage.act();
+        hudStage.draw();
     }
 
     @Override

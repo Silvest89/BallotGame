@@ -1,25 +1,13 @@
 package eu.silvenia.shipballot.systems;
 
-import com.badlogic.ashley.core.ComponentMapper;
 import com.badlogic.ashley.core.Engine;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.systems.IteratingSystem;
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
-import eu.silvenia.shipballot.AshleyEntityManager;
 import eu.silvenia.shipballot.BodyGenerator;
 import eu.silvenia.shipballot.Mappers;
-import eu.silvenia.shipballot.PhysicsManager;
-import eu.silvenia.shipballot.creature.Creature;
-import eu.silvenia.shipballot.creature.PlayerTest;
-import eu.silvenia.shipballot.screens.GameScreen;
 import eu.silvenia.shipballot.systems.Components.*;
-import eu.silvenia.shipballot.weapons.Bullet;
 
 /**
  * Created by Johnnie Ho on 29-6-2015.

@@ -9,7 +9,7 @@ import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.physics.box2d.*;
 import eu.silvenia.shipballot.*;
 import eu.silvenia.shipballot.weapons.Bullet;
-import eu.silvenia.shipballot.screens.GameScreen;
+import eu.silvenia.shipballot.screens.Game;
 import net.dermetfan.gdx.graphics.g2d.AnimatedSprite;
 import net.dermetfan.gdx.graphics.g2d.Box2DSprite;
 
@@ -24,12 +24,12 @@ abstract public class Creature extends Box2DSprite implements GameObject, InputP
     private boolean canJump;
     private int experience;
 
-    private float movementForce = 50;
-    private float jumpForce = 60;
+    private float movementForce = 30;
+    private float jumpForce = 20;
     private float speed;
     private float animationTime;
 
-    protected GameScreen game;
+    protected Game game;
 
     protected Animation southStanding, westStanding, eastStanding, northStanding;
     protected Animation south, west, east, north;
@@ -50,7 +50,7 @@ abstract public class Creature extends Box2DSprite implements GameObject, InputP
     DIRECTION movingDirection = null;
     DIRECTION lookingDirection = null;
 
-    public Creature(GameScreen game, AnimatedSprite animatedSprite, String name, World world){
+    public Creature(Game game, AnimatedSprite animatedSprite, String name, World world){
         super(animatedSprite);
 
         this.world = world;
@@ -171,7 +171,7 @@ abstract public class Creature extends Box2DSprite implements GameObject, InputP
 
             }
             EntityManager.setToDestroy(this);
-            GameScreen.playerList.remove(this);
+            Game.playerList.remove(this);
         }
     }
 
@@ -223,12 +223,12 @@ abstract public class Creature extends Box2DSprite implements GameObject, InputP
 
             FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/Quicksand-Bold.ttf"));
             FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
-            parameter.size = (int)(12 * GameScreen.SCALE);
+            parameter.size = (int)(12 * Game.SCALE);
             parameter.minFilter = Texture.TextureFilter.Linear;
             parameter.magFilter = Texture.TextureFilter.MipMapLinearNearest;
             parameter.color = Color.WHITE;
 
-            generator.scaleForPixelHeight((int)(12 * GameScreen.SCALE));
+            generator.scaleForPixelHeight((int)(12 * Game.SCALE));
 
             BitmapFont font12 = generator.generateFont(parameter); // font size 12 pixels
             generator.dispose();

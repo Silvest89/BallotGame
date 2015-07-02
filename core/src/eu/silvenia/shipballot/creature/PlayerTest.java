@@ -4,7 +4,14 @@ import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.Body;
+import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.Event;
+import com.badlogic.gdx.scenes.scene2d.EventListener;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import eu.silvenia.shipballot.Mappers;
 import eu.silvenia.shipballot.Updateable;
 
@@ -18,9 +25,7 @@ public class PlayerTest implements Updateable, InputProcessor {
         EAST,
         WEST
     }
-    private float movementForce = 60;
     private float animationTime = 0;
-    private float jumpForce = 100;
 
     protected Animation southStanding, westStanding, eastStanding, northStanding;
     protected Animation south, west, east, north;
@@ -32,30 +37,27 @@ public class PlayerTest implements Updateable, InputProcessor {
     public void update(float delta) {
         animationTime = animationTime + (160 * delta / 100);
         move();
-        if(Mappers.playerData.get(entity).movingDirection != null)
+        if(getMovingDirection() != null)
             animatePlayer();
-    }
-    public void setLookingDirection(DIRECTION lookingDirection) {
-        Mappers.playerData.get(entity).lookingDirection = lookingDirection;
     }
 
     public void animatePlayer(){
-        switch(Mappers.playerData.get(entity).movingDirection){
+        switch(getMovingDirection()){
             case WEST:{
-                setLookingDirection(DIRECTION.WEST);
-                Mappers.spriteMap.get(entity).spritesList.first().setRegion(west.getKeyFrame(animationTime));
+                setLookDirection(DIRECTION.WEST);
+                getSprite().setRegion(west.getKeyFrame(animationTime));
                 break;
             }
             case EAST:{
-                setLookingDirection(DIRECTION.EAST);
-                Mappers.spriteMap.get(entity).spritesList.first().setRegion(east.getKeyFrame(animationTime));
+                setLookDirection(DIRECTION.EAST);
+                getSprite().setRegion(east.getKeyFrame(animationTime));
                 break;
             }
         }
     }
 
     public void move(){
-        Mappers.bodyMap.get(entity).body.applyForceToCenter(Mappers.playerData.get(entity).keyforce, true);
+        getBody().applyForceToCenter(getKeyForce(), true);
     }
 
     public void setupAnimation(TextureAtlas playerAtlas){
@@ -84,21 +86,22 @@ public class PlayerTest implements Updateable, InputProcessor {
                 break;
             }
             case Input.Keys.SPACE:{
-                if(Mappers.playerData.get(entity).canJump) {
+                if(canJump()) {
 
-                    Mappers.bodyMap.get(entity).body.applyLinearImpulse(0,
-                            jumpForce,
-                            Mappers.bodyMap.get(entity).body.getWorldCenter().x,
-                            Mappers.bodyMap.get(entity).body.getWorldCenter().y,
+                    getBody().applyLinearImpulse(0,
+                            getJumpForce(),
+                            getBody().getWorldCenter().x,
+                            getBody().getWorldCenter().y,
                             true);
-                    Mappers.playerData.get(entity).canJump = false;
+                    setCanJump(false);
                 }
 
                 break;
             }
             case Input.Keys.SHIFT_LEFT:{
-                if(Mappers.weaponMap.get(entity).reloadTimer >= Mappers.weaponMap.get(entity).getReloadTime())
-                    Mappers.weaponMap.get(entity).canFire = true;
+                if(getReloadTimer() >= getReloadTime())
+                    setCanFire(true);
+                break;
             }
         }
         return false;
@@ -149,34 +152,101 @@ public class PlayerTest implements Updateable, InputProcessor {
     public void movePlayer(DIRECTION direction){
         switch(direction){
             case WEST:{
-                Mappers.playerData.get(entity).keyforce.x = -movementForce;
-                Mappers.playerData.get(entity).movingDirection = DIRECTION.WEST;
+                getKeyForce().x = -getMovementForce();
+                setMovingDirection(DIRECTION.WEST);
                 break;
             }
             case EAST:{
-                Mappers.playerData.get(entity).keyforce.x = movementForce;
-                Mappers.playerData.get(entity).movingDirection = DIRECTION.EAST;
+                getKeyForce().x = getMovementForce();
+                setMovingDirection(DIRECTION.EAST);
                 break;
             }
         }
     }
 
     public void stopPlayer(){
-        if(Mappers.playerData.get(entity).movingDirection == null)
+        if(getMovingDirection() == null)
             return;
-        Mappers.playerData.get(entity).keyforce.x = 0;
+        setKeyForce(0, 0);
         animationTime = 0;
 
         switch(Mappers.playerData.get(entity).movingDirection){
             case WEST:{
-                Mappers.spriteMap.get(entity).spritesList.first().setRegion(westStanding.getKeyFrame(0));
+                getSprite().setRegion(westStanding.getKeyFrame(0));
                 break;
             }
             case EAST:{
-                Mappers.spriteMap.get(entity).spritesList.first().setRegion(eastStanding.getKeyFrame(0));
+                getSprite().setRegion(eastStanding.getKeyFrame(0));
                 break;
             }
         }
         Mappers.playerData.get(entity).movingDirection = null;
+    }
+
+    public int getLevel(){
+        return Mappers.playerData.get(entity).level;
+    }
+    public Vector2 getKeyForce(){
+        return Mappers.playerData.get(entity).keyforce;
+    }
+    public void setKeyForce(float x, float y){
+        Mappers.playerData.get(entity).keyforce = new Vector2(x, y);
+    }
+
+    public boolean canJump(){
+        return Mappers.playerData.get(entity).canJump;
+    }
+    public void setCanJump(boolean canJump){
+        Mappers.playerData.get(entity).canJump = canJump;
+    }
+
+    public Body getBody(){
+        return Mappers.bodyMap.get(entity).body;
+    }
+    public int getHealth(){
+        return Mappers.playerData.get(entity).health;
+    }
+    public int getMaxHealth(){
+        return Mappers.playerData.get(entity).maxHealth;
+    }
+
+    public int getJumpForce(){
+        return Mappers.playerData.get(entity).jumpForce;
+    }
+
+    public int getMovementForce(){
+        return Mappers.playerData.get(entity).movementForce;
+    }
+
+    public DIRECTION getMovingDirection(){
+        return Mappers.playerData.get(entity).movingDirection;
+    }
+    public void setMovingDirection(DIRECTION direction){
+        Mappers.playerData.get(entity).movingDirection = direction;
+    }
+
+    public DIRECTION getLookDirection(){
+        return Mappers.playerData.get(entity).lookingDirection;
+    }
+
+    public void setLookDirection(DIRECTION direction){
+        Mappers.playerData.get(entity).lookingDirection = direction;
+    }
+
+    public Sprite getSprite(){
+        return Mappers.spriteMap.get(entity).spritesList.first();
+    }
+
+    public float getReloadTimer(){
+        return Mappers.weaponMap.get(entity).reloadTimer;
+    }
+    public float getReloadTime(){
+        return Mappers.weaponMap.get(entity).getReloadTime();
+    }
+    public boolean canFire(){
+        return Mappers.weaponMap.get(entity).canFire;
+    }
+    public void setCanFire(boolean canFire){
+        Mappers.weaponMap.get(entity).canFire = canFire;
     }
 }

@@ -11,7 +11,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import eu.silvenia.shipballot.AshleyEntityManager;
 import eu.silvenia.shipballot.Mappers;
-import eu.silvenia.shipballot.screens.GameScreen;
+import eu.silvenia.shipballot.screens.Game;
 import eu.silvenia.shipballot.systems.Components.*;
 
 /**
@@ -34,7 +34,7 @@ public class NameBarSystem extends IteratingSystem {
         parameter.magFilter = Texture.TextureFilter.MipMapLinearNearest;
         parameter.color = Color.WHITE;
 
-        generator.scaleForPixelHeight((int)(30 * GameScreen.SCALE));
+        generator.scaleForPixelHeight((int)(30 * Game.SCALE));
 
         BitmapFont font12 = generator.generateFont(parameter); // font size 12 pixels
         generator.dispose();

@@ -5,6 +5,7 @@ import com.badlogic.ashley.core.Engine;
 import com.badlogic.ashley.core.Entity;
 import eu.silvenia.shipballot.AshleyEntityManager;
 import eu.silvenia.shipballot.Collidable;
+import eu.silvenia.shipballot.Mappers;
 import eu.silvenia.shipballot.PhysicsManager;
 
 /**
@@ -21,9 +22,11 @@ public class BulletCollisionComponent extends Component implements Collidable {
                 }
             }
         }
-        // Bullets will always be destroyed when handling a collision?
-        collider.getComponent(BodyComponent.class).body.getFixtureList().first().setUserData(null); // <= is this a good solution?
-        collider.remove(RenderableComponent.class);
-        AshleyEntityManager.setToDestroy(collider);
+        if(collider != null && collider.getComponent(RenderableComponent.class) != null) {
+            // Bullets will always be destroyed when handling a collision?
+            collider.getComponent(BodyComponent.class).body.setUserData(null); // <= is this a good solution?
+            collider.remove(RenderableComponent.class);
+            AshleyEntityManager.setToDestroy(collider);
+        }
     }
 }

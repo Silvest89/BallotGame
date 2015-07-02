@@ -9,14 +9,17 @@ import eu.silvenia.shipballot.creature.PlayerTest;
  */
 public class PlayerDataComponent extends CreatureDataComponent {
     public String name = "John Doe";
-    public long level = 1;
+    public int level = 1;
     public long money = 0;
-    public long health = 100;
-    public long maxHealth = 100;
+    public int health = 100;
+    public int maxHealth = 100;
     public long shield = 0;
     public long maxShield = 0;
     public Vector2 keyforce = new Vector2();
     public boolean canJump = false;
     public PlayerTest.DIRECTION movingDirection = null;
     public PlayerTest.DIRECTION lookingDirection = null;
+
+    public int jumpForce = 65;
+    public int movementForce = 45;
 }

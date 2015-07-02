@@ -73,7 +73,6 @@ public class MainMenu implements Screen {
     private ClickListener clickListener = new ClickListener(){
         @Override
         public void clicked(InputEvent event, float x, float y){
-            System.out.println(event.getListenerActor().getName());
             switch(event.getListenerActor().getName()){
                 case "Start Game": {
                     // go to game screen
