@@ -10,6 +10,7 @@ import eu.silvenia.shipballot.creature.PlayerTest;
 public class PlayerDataComponent extends CreatureDataComponent {
     public String name = "John Doe";
     public int level = 1;
+    public long experience = 0;
     public long money = 0;
     public int health = 100;
     public int maxHealth = 100;

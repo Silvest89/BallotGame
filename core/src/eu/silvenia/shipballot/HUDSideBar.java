@@ -23,7 +23,9 @@ public class HUDSideBar extends Stage {
     //Image backgroundImage = new Image(new Texture(Gdx.files.internal("hud_background.png")));
     Sprite healthBarBackground = new Sprite(new Texture(Gdx.files.internal("hud_healthbarbg.png")));
     Sprite healthBarForeground = new Sprite(new Texture(Gdx.files.internal("hud_healthbarfg.png")));
-    Image image = new Image(new Texture(Gdx.files.internal("hud_levelcircle.png")));
+    Sprite experienceBackground = new Sprite(new Texture(Gdx.files.internal("experiencebarbg.png")));
+    Sprite experienceForeground = new Sprite(new Texture(Gdx.files.internal("experiencebarfg.png")));
+    Image levelCircle = new Image(new Texture(Gdx.files.internal("hud_levelcircle.png")));
     Table table = new Table();
     PlayerTest player;
 
@@ -50,10 +52,17 @@ public class HUDSideBar extends Stage {
         healthBarBackground.setPosition(12, getCamera().viewportHeight - 40);
         healthBarForeground.setPosition(15, getCamera().viewportHeight - 37);
         healthBarForeground.setOrigin(0, 0);
+
+        experienceBackground.setPosition(24, getCamera().viewportHeight - 51);
+        experienceForeground.setPosition(26, getCamera().viewportHeight - 49);
+        experienceForeground.setOrigin(0, 0);
+
         font.getData().setScale(0.60f);
 
         healthBarForeground.setScale(player.getHealth() / (float)player.getMaxHealth(), 1f);
-        image.setPosition(8, getCamera().viewportHeight - 50);
+        experienceForeground.setScale(player.getExperience() / (float)PlayerTest.getExpForNextLv(player.getLevel() + 1), 1f);
+        levelCircle.setPosition(8, getCamera().viewportHeight - 50);
+        System.out.println(player.getExpForNextLv(2));
     }
 
     @Override
@@ -70,12 +79,16 @@ public class HUDSideBar extends Stage {
 
         healthBarBackground.draw(getBatch());
         healthBarForeground.draw(getBatch());
-        image.draw(getBatch(), 1);
+        experienceBackground.draw(getBatch());
+        experienceForeground.draw(getBatch());
+        levelCircle.draw(getBatch(), 1);
+
         font.draw(getBatch(), healthBar, healthBarBackground.getX() + 70f , healthBarBackground .getY() + 22);
         if(player.getLevel() < 10)
-            font.draw(getBatch(), Integer.toString(player.getLevel()), 12 + 5 , image.getY() + 19);
+            font.draw(getBatch(), Integer.toString(player.getLevel()), 12 + 5 , levelCircle.getY() + 19);
         else
-            font.draw(getBatch(), Integer.toString(player.getLevel()), 12, image.getY() + 19);
+            font.draw(getBatch(), Integer.toString(player.getLevel()), 12, levelCircle.getY() + 19);
+
         getBatch().end();
 
 

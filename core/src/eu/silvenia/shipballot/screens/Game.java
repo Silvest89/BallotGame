@@ -146,8 +146,6 @@ public class Game implements Screen{
         Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        //Gdx.gl.glViewport( 0,0,Gdx.graphics.getWidth()-200,Gdx.graphics.getHeight() );
-        //camera.position.set(player.getBody().getPosition().x, player.getBody().getPosition().y, 0);
         camera.position.set(AshleyEntityManager.player.getComponent(BodyComponent.class).body.getPosition().x, AshleyEntityManager.player.getComponent(BodyComponent.class).body.getPosition().y, 0);
         camera.update();
         tiledMapRenderer.setView(camera);
@@ -156,6 +154,7 @@ public class Game implements Screen{
         batch.setProjectionMatrix(camera.combined);
         batch.begin();
         ashleyEntityManager.update(delta);
+        TextManager.Draw("FPS: " + Gdx.graphics.getFramesPerSecond() + " Time: " + FpsTimer.time, camera);
         batch.end();
 
         stage.act(Gdx.graphics.getDeltaTime());
@@ -176,7 +175,6 @@ public class Game implements Screen{
         debugRenderer.render(world, camera.combined);
 
         stage.getBatch().setProjectionMatrix(camera.combined);
-        //Gdx.gl.glViewport( Gdx.graphics.getWidth() - 200,0, 200,Gdx.graphics.getHeight() );
         hudStage.act();
         hudStage.draw();
     }

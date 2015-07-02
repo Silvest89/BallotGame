@@ -15,6 +15,8 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import eu.silvenia.shipballot.Mappers;
 import eu.silvenia.shipballot.Updateable;
 
+import java.util.Map;
+
 /**
  * Created by Johnnie Ho on 29-6-2015.
  */
@@ -248,5 +250,13 @@ public class PlayerTest implements Updateable, InputProcessor {
     }
     public void setCanFire(boolean canFire){
         Mappers.weaponMap.get(entity).canFire = canFire;
+    }
+
+    public long getExperience(){
+        return Mappers.playerData.get(entity).experience;
+    }
+    public static long getExpForNextLv(int level){
+        level--;
+        return ((50L * level * level * level) - (150L * level * level) + (400L * level)) / 3L;
     }
 }
