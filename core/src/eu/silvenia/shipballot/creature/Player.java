@@ -1,62 +1,75 @@
 package eu.silvenia.shipballot.creature;
 
+import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.g2d.Animation;
-import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.physics.box2d.*;
-import eu.silvenia.shipballot.EntityManager;
+import com.badlogic.gdx.physics.box2d.Body;
+import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.Event;
+import com.badlogic.gdx.scenes.scene2d.EventListener;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import eu.silvenia.shipballot.AshleyEntityManager;
+import eu.silvenia.shipballot.Mappers;
+import eu.silvenia.shipballot.PhysicsManager;
 import eu.silvenia.shipballot.Updateable;
-import eu.silvenia.shipballot.screens.Game;
-
+import eu.silvenia.shipballot.systems.Components.*;
 import eu.silvenia.shipballot.weapons.Weapon;
-import net.dermetfan.gdx.graphics.g2d.AnimatedSprite;
 
+import java.util.Map;
 
 /**
- * Created by Johnnie Ho on 24-6-2015.
+ * Created by Johnnie Ho on 29-6-2015.
  */
-public class Player extends Creature implements Updateable{
+public class Player implements Updateable, InputProcessor {
+    private Entity entity;
+    private Entity weapon;
 
-    private Vector2 keyforce = new Vector2();
+    public enum DIRECTION{
+        EAST,
+        WEST
+    }
+    private float animationTime = 0;
 
-    OrthographicCamera camera;
+    protected Animation southStanding, westStanding, eastStanding, northStanding;
+    protected Animation south, west, east, north;
 
-    Weapon weapon;
+    public Player(Entity entity){
+        this.entity = entity;
 
-    public Player(Game game, AnimatedSprite animatedSprite, String name, World world, OrthographicCamera camera){
-        super(game, animatedSprite, name, world);
-        this.camera = camera;
+        weapon = new Entity();
+        weapon.add(new WeaponDataComponent(Weapon.WeaponType.PISTOL))
+            .add(new ShootingComponent())
+            .add(new AttachedComponent(entity));
+    }
 
-        weapon = new Weapon(this, Weapon.WeaponType.SHOTGUN);
+    public void update(float delta) {
+        animationTime = animationTime + (160 * delta / 100);
+        move();
+        if(getMovingDirection() != null)
+            animatePlayer();
+    }
 
-        // reusable construction objects
-        BodyDef bodyDef = new BodyDef();
-        FixtureDef fixtureDef = new FixtureDef();
+    public void animatePlayer(){
+        switch(getMovingDirection()){
+            case WEST:{
+                setLookDirection(DIRECTION.WEST);
+                getSprite().setRegion(west.getKeyFrame(animationTime));
+                break;
+            }
+            case EAST:{
+                setLookDirection(DIRECTION.EAST);
+                getSprite().setRegion(east.getKeyFrame(animationTime));
+                break;
+            }
+        }
+    }
 
-        // a ball
-        bodyDef.type = BodyDef.BodyType.DynamicBody;
-        bodyDef.position.set(8,4);
-        bodyDef.fixedRotation = true;
-
-        PolygonShape shape = new PolygonShape();
-        shape.setAsBox(1f, 1f);
-
-        fixtureDef.shape = shape;
-        fixtureDef.density = 2.0f;
-        fixtureDef.restitution = 0f;
-
-        body = world.createBody(bodyDef);
-        body.createFixture(fixtureDef);
-        body.setUserData(this);
-
-        shape.dispose();
-
-        EntityManager.setToUpdate(this);
-
+    public void move(){
+        getBody().applyForceToCenter(getKeyForce(), true);
     }
 
     public void setupAnimation(TextureAtlas playerAtlas){
@@ -74,39 +87,8 @@ public class Player extends Creature implements Updateable{
     }
 
     @Override
-    public void draw(Batch batch){
-        super.draw(batch);
-    }
-
-    @Override
-    public void update(float delta){
-        super.update(delta);
-        weapon.update();
-        getBody().applyForceToCenter(keyforce, true);
-
-        setAnimationTime(getAnimationTime() + (getSpeed() * delta / 100));
-        if(movingDirection != null)
-            animatePlayer();
-    }
-
-    public void animatePlayer(){
-        switch(movingDirection){
-            case WEST:{
-                setLookingDirection(DIRECTION.WEST);
-                setRegion(west.getKeyFrame(getAnimationTime()));
-                break;
-            }
-            case EAST:{
-                setLookingDirection(DIRECTION.EAST);
-                setRegion(east.getKeyFrame(getAnimationTime()));
-                break;
-            }
-        }
-    }
-
-    @Override
     public boolean keyDown(int keycode) {
-        switch(keycode){
+        switch(keycode) {
             case Input.Keys.A: {
                 movePlayer(DIRECTION.WEST);
                 break;
@@ -117,18 +99,23 @@ public class Player extends Creature implements Updateable{
             }
             case Input.Keys.SPACE:{
                 if(canJump()) {
-                    getBody().applyLinearImpulse(0, getJumpForce(), getBody().getWorldCenter().x, getBody().getWorldCenter().y, true);
-                    setCanJump(false);
+                    getBody().applyLinearImpulse(0,
+                            getJumpForce(),
+                            getBody().getWorldCenter().x,
+                            getBody().getWorldCenter().y,
+                            true);
+                    //setCanJump(false);
                 }
 
                 break;
             }
             case Input.Keys.SHIFT_LEFT:{
-                weapon.fire();
+                if(getReloadTimer() >= getReloadTime())
+                    setCanFire(true);
                 break;
             }
         }
-        return true;
+        return false;
     }
 
     @Override
@@ -140,7 +127,7 @@ public class Player extends Creature implements Updateable{
                 break;
             }
         }
-        return true;
+        return false;
     }
 
     @Override
@@ -150,19 +137,11 @@ public class Player extends Creature implements Updateable{
 
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-        Vector3 testPoint = new Vector3();
-        camera.unproject(testPoint.set(screenX, screenY, 0));
-        if(getBody().getPosition().x < testPoint.x)
-            movePlayer(DIRECTION.EAST);
-        if(getBody().getPosition().x > testPoint.x)
-            movePlayer(DIRECTION.WEST);
-
         return false;
     }
 
     @Override
     public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-        stopPlayer();
         return false;
     }
 
@@ -181,47 +160,119 @@ public class Player extends Creature implements Updateable{
         return false;
     }
 
-    @Override
-    public void handleCollision(Body body){
-        if(game.parser.getBodies().get("ground") == body) {
-            setCanJump(true);
-        }
-        if(body.getUserData() != null){
-            if(body.getUserData() instanceof Creature)
-                setCanJump(true);
-        }
-    }
-
     public void movePlayer(DIRECTION direction){
         switch(direction){
             case WEST:{
-                keyforce.x = -getMovementForce();
-                movingDirection = DIRECTION.WEST;
+                getKeyForce().x = -getMovementForce();
+                setMovingDirection(DIRECTION.WEST);
                 break;
             }
             case EAST:{
-                keyforce.x = getMovementForce();
-                movingDirection = DIRECTION.EAST;
+                getKeyForce().x = getMovementForce();
+                setMovingDirection(DIRECTION.EAST);
                 break;
             }
         }
     }
-    public void stopPlayer(){
-        if(movingDirection == null)
-            return;
-        keyforce.x = 0;
-        setAnimationTime(0);
 
-        switch(movingDirection){
+    public void stopPlayer(){
+        if(getMovingDirection() == null)
+            return;
+        setKeyForce(0, 0);
+        animationTime = 0;
+
+        switch(Mappers.playerData.get(entity).movingDirection){
             case WEST:{
-                setRegion(westStanding.getKeyFrame(0));
+                getSprite().setRegion(westStanding.getKeyFrame(0));
                 break;
             }
             case EAST:{
-                setRegion(eastStanding.getKeyFrame(0));
+                getSprite().setRegion(eastStanding.getKeyFrame(0));
                 break;
             }
         }
-        movingDirection = null;
+        Mappers.playerData.get(entity).movingDirection = null;
+    }
+
+    public int getLevel(){
+        return Mappers.playerData.get(entity).level;
+    }
+    public Vector2 getKeyForce(){
+        return Mappers.playerData.get(entity).keyforce;
+    }
+    public void setKeyForce(float x, float y){
+        Mappers.playerData.get(entity).keyforce = new Vector2(x, y);
+    }
+
+    public boolean canJump(){
+        return Mappers.playerData.get(entity).canJump;
+    }
+    public void setCanJump(boolean canJump){
+        Mappers.playerData.get(entity).canJump = canJump;
+    }
+
+    public Body getBody(){
+        return Mappers.bodyMap.get(entity).body;
+    }
+    public int getHealth(){
+        return Mappers.playerData.get(entity).health;
+    }
+    public int getMaxHealth(){
+        return Mappers.playerData.get(entity).maxHealth;
+    }
+
+    public int getJumpForce(){
+        return Mappers.playerData.get(entity).jumpForce;
+    }
+
+    public int getMovementForce(){
+        return Mappers.playerData.get(entity).movementForce;
+    }
+
+    public DIRECTION getMovingDirection(){
+        return Mappers.playerData.get(entity).movingDirection;
+    }
+    public void setMovingDirection(DIRECTION direction){
+        Mappers.playerData.get(entity).movingDirection = direction;
+    }
+
+    public DIRECTION getLookDirection(){
+        return Mappers.playerData.get(entity).lookingDirection;
+    }
+
+    public void setLookDirection(DIRECTION direction){
+        Mappers.playerData.get(entity).lookingDirection = direction;
+    }
+
+    public Sprite getSprite(){
+        return Mappers.spriteMap.get(entity).spritesList.first();
+    }
+
+    public float getReloadTimer(){
+        return Mappers.weaponMap.get(weapon).reloadTimer;
+    }
+    public float getReloadTime(){
+        return Mappers.weaponMap.get(weapon).getReloadTime();
+    }
+    public boolean canFire(){
+        return Mappers.weaponMap.get(weapon).canFire;
+    }
+    public void setCanFire(boolean canFire){
+        Mappers.weaponMap.get(weapon).canFire = canFire;
+    }
+
+    public long getExperience(){
+        return Mappers.playerData.get(entity).experience;
+    }
+    public static long getExpForNextLv(int level){
+        level--;
+        return ((50L * level * level * level) - (150L * level * level) + (400L * level)) / 3L;
+    }
+
+    public Weapon.WeaponType getWeaponType(){
+        return Mappers.weaponMap.get(weapon).getWeaponType();
+    }
+    public Entity getWeapon(){
+        return weapon;
     }
 }

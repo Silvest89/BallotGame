@@ -7,23 +7,22 @@ import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.utils.Array;
 import eu.silvenia.shipballot.creature.Player;
-import eu.silvenia.shipballot.creature.PlayerTest;
 import eu.silvenia.shipballot.systems.*;
 import eu.silvenia.shipballot.systems.Components.*;
 import eu.silvenia.shipballot.weapons.Weapon;
 import net.dermetfan.gdx.graphics.g2d.AnimatedSprite;
-import net.dermetfan.gdx.graphics.g2d.Box2DSprite;
 
 /**
  * Created by Johnnie Ho on 29-6-2015.
  */
 public class AshleyEntityManager {
-    private Engine engine;
-    public static Entity player;
-    public static PlayerTest playerTest;
+    private static Engine engine;
+    public static Entity enityPlayer;
+    public static Player player;
     private World world;
     private Batch batch;
 
@@ -44,6 +43,9 @@ public class AshleyEntityManager {
         engine.addSystem(nameBarSystem);
         engine.addSystem(movementSystem);
         engine.addSystem(renderSystem);
+        engine.addSystem(new BitmapFontRenderSystem(batch));
+        engine.addSystem(new DeathTimerSystem());
+        engine.addSystem(new FauxGravitySystem());
 
         engine.addSystem(shootWeaponSystem);
 
@@ -53,9 +55,9 @@ public class AshleyEntityManager {
         AnimatedSprite animatedSprite = new AnimatedSprite(new Animation(1 / 4f, playerAtlas.findRegions("southStanding")));
         animatedSprite.setSize(1.8f, 1.8f);
         animatedSprite.setOrigin(animatedSprite.getWidth() / 2, animatedSprite.getHeight() / 2);
-        player = new Entity();
-        playerTest = new PlayerTest(player);
-        playerTest.setupAnimation(playerAtlas);
+        enityPlayer = new Entity();
+        player = new Player(enityPlayer);
+        player.setupAnimation(playerAtlas);
         Body body;
         // reusable construction objects
         BodyDef bodyDef = new BodyDef();
@@ -75,21 +77,28 @@ public class AshleyEntityManager {
 
         body = world.createBody(bodyDef);
         body.createFixture(fixtureDef);
-        body.setUserData(player);
+        PolygonShape shape2 = new PolygonShape();
+        shape2.setAsBox(0.7f, 0.1f, new Vector2(0, -1.1f), 0);
 
-        player.add(new SpriteComponent(animatedSprite))
+        fixtureDef.shape = shape2;
+        fixtureDef.isSensor = true;
+        fixtureDef.filter.categoryBits = PhysicsManager.FOOT_SENSOR;
+        body.createFixture(fixtureDef);
+
+
+        body.setUserData(enityPlayer);
+
+        enityPlayer.add(new SpriteComponent(animatedSprite))
                 .add(new BodyComponent(body))
                 .add(new PlayerDataComponent())
                 .add(new PositionComponent(8, 8, 0))
                 .add(new RenderableComponent())
                 .add(new PlayerCollisionComponent())
                 .add(new TypeComponent(PhysicsManager.COL_PLAYER))
-                .add(new VelocityComponent(0))
-                .add(new WeaponDataComponent(Weapon.WeaponType.PISTOL))
-                .add(new ShootingComponent());
+                .add(new VelocityComponent(0, 0));
 
         Entity healthBar = new Entity();
-        AttachedComponent attachedComponent = new AttachedComponent(player);
+        AttachedComponent attachedComponent = new AttachedComponent(enityPlayer);
         PositionComponent positionComponent = new PositionComponent(0, 0, 0);
         HealthBarComponent healthBarComponent = new HealthBarComponent();
 
@@ -105,16 +114,20 @@ public class AshleyEntityManager {
         healthBar.add(attachedComponent).add(positionComponent).add(spriteComponent).add(new RenderableComponent()).add(healthBarComponent);
 
         Entity nameBar = new Entity();
-        attachedComponent = new AttachedComponent(player);
+        attachedComponent = new AttachedComponent(enityPlayer);
         positionComponent = new PositionComponent(0, 0, 0);
         NameBarComponent nameBarComponent = new NameBarComponent();
         nameBar.add(attachedComponent).add(positionComponent).add(nameBarComponent).add(new RenderableComponent());
 
-        engine.addEntity(player);
+        engine.addEntity(enityPlayer);
         engine.addEntity(healthBar);
         engine.addEntity(nameBar);
+        engine.addEntity(player.getWeapon());
         AshleyEntityManager.add(player);
-        AshleyEntityManager.add(playerTest);
+    }
+
+    public static Engine getEngine(){
+        return engine;
     }
 
     private static Array<Entity> entities = new Array<Entity>();
@@ -126,7 +139,7 @@ public class AshleyEntityManager {
         for (Updateable updateable : updateables) {
             updateable.update(deltaTime);
         }
-        //Box2DSprite.draw(batch, world);
+
         for (Entity entity : destroyEntities) {
             try {
                 world.destroyBody(entity.getComponent(BodyComponent.class).body);

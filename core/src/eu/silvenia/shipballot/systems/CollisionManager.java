@@ -2,9 +2,12 @@ package eu.silvenia.shipballot.systems;
 
 import com.badlogic.ashley.core.Engine;
 import com.badlogic.ashley.core.Entity;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.physics.box2d.*;
+import eu.silvenia.shipballot.AshleyEntityManager;
 import eu.silvenia.shipballot.Mappers;
 import eu.silvenia.shipballot.PhysicsManager;
+import eu.silvenia.shipballot.systems.Components.*;
 
 /**
  * Created by Johnnie Ho on 29-6-2015.
@@ -63,6 +66,14 @@ public class CollisionManager implements ContactListener {
         Fixture fixtureA = contact.getFixtureA();
         Fixture fixtureB = contact.getFixtureB();
 
+        if(fixtureA.getFilterData().categoryBits == PhysicsManager.BULLET){
+            handleBulletCollision(fixtureA, fixtureB);
+            return;
+        }
+        else if(fixtureB.getFilterData().categoryBits == PhysicsManager.BULLET){
+            handleBulletCollision(fixtureB, fixtureA);
+            return;
+        }
         /*if ((fixtureA.getBody().isBullet() && fixtureB.getFilterData().categoryBits == PhysicsManager.LEVEL_BITS) ||
                 (fixtureB.getBody().isBullet() && fixtureA.getFilterData().categoryBits == PhysicsManager.LEVEL_BITS)) {
 
@@ -70,11 +81,21 @@ public class CollisionManager implements ContactListener {
             //EntityManager.createBulletHole(position, normal);
         }*/
 
+        if(fixtureA.isSensor()) {
+            handleSensorCollision(fixtureA, false);
+            return;
+        }
 
-        Entity actorA = (Entity) fixtureA.getBody().getUserData();
+        if(fixtureB.isSensor()) {
+            handleSensorCollision(fixtureB, false);
+            return;
+        }
+
+
+        Entity actorA = (Entity) fixtureA.getUserData();
         Entity actorB = (Entity) fixtureB.getBody().getUserData();
 
-        createCollision(actorA, actorB);
+        //createCollision(actorA, actorB);
     }
 
     @Override
@@ -82,7 +103,65 @@ public class CollisionManager implements ContactListener {
         Fixture fixtureA = contact.getFixtureA();
         Fixture fixtureB = contact.getFixtureB();
 
+        if(fixtureA.isSensor()) {
+            handleSensorCollision(fixtureA, true);
+        }
+        else if(fixtureB.isSensor())
+            handleSensorCollision(fixtureB, true);
+
         Entity actorA = (Entity) fixtureA.getUserData();
         Entity actorB = (Entity) fixtureB.getUserData();
+    }
+
+    public void handleSensorCollision(Fixture fixture, boolean endContact){
+        if(!endContact) {
+            if (fixture.getFilterData().categoryBits == PhysicsManager.FOOT_SENSOR) {
+                Entity entity = (Entity) fixture.getBody().getUserData();
+                Mappers.playerData.get(entity).canJump = true;
+            }
+        }
+        else{
+            if (fixture.getFilterData().categoryBits == PhysicsManager.FOOT_SENSOR) {
+                Entity entity = (Entity) fixture.getBody().getUserData();
+                Mappers.playerData.get(entity).canJump = false;
+            }
+        }
+    }
+
+    public void handleBulletCollision(Fixture fixtureA, Fixture fixtureB){;
+        if(fixtureB.getBody().getUserData() == null){
+
+        }
+        else{
+            Entity bullet = (Entity)fixtureA.getBody().getUserData();
+            Entity entity = (Entity)fixtureB.getBody().getUserData();
+            if(entity != null && bullet != null){
+                Mappers.playerData.get(entity).health -= Mappers.bulletDamageMap.get(bullet).damage;
+
+                Body body = Mappers.bodyMap.get(entity).body;
+                Entity indicator = new Entity();
+                BitmapFontComponent bFontCom = new BitmapFontComponent(new BitmapFont(), "" + Mappers.bulletDamageMap.get(bullet).damage);
+                PositionComponent posCom = new PositionComponent(body.getPosition().x, body.getPosition().y, 500);
+                VelocityComponent vCom = new VelocityComponent((float) (Math.random() - 0.5d) * 1f, 0.3f); // make these random
+                RenderableComponent renderCom = new RenderableComponent();
+                TransparentComponent transCom = new TransparentComponent(1);
+                DeathTimerComponent deathCom  = new DeathTimerComponent(2000); // die after 2 seconds?
+                FauxGravityComponent fauxGCom = new FauxGravityComponent(0.01f);
+                indicator.add(bFontCom)
+                        .add(posCom)
+                        .add(vCom)
+                        .add(renderCom)
+                        .add(transCom)
+                        .add(deathCom)
+                        .add(fauxGCom);
+                AshleyEntityManager.getEngine().addEntity(indicator);
+            }
+        }
+        Entity bullet = (Entity) fixtureA.getBody().getUserData();
+        if(bullet != null) {
+            bullet.getComponent(BodyComponent.class).body.setUserData(null); // <= is this a good solution?
+            bullet.remove(RenderableComponent.class);
+            AshleyEntityManager.setToDestroy(bullet);
+        }
     }
 }

@@ -16,21 +16,11 @@ import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
-import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.viewport.ExtendViewport;
-import com.badlogic.gdx.utils.viewport.StretchViewport;
 import eu.silvenia.shipballot.*;
-import eu.silvenia.shipballot.creature.Creature;
-import eu.silvenia.shipballot.creature.Player;
 import eu.silvenia.shipballot.data.Assets;
 import eu.silvenia.shipballot.systems.Components.BodyComponent;
-import eu.silvenia.shipballot.systems.Components.PositionComponent;
-import net.dermetfan.gdx.graphics.g2d.AnimatedSprite;
-import net.dermetfan.gdx.graphics.g2d.Box2DSprite;
 import net.dermetfan.gdx.physics.box2d.Box2DMapObjectParser;
-
-import java.util.ArrayList;
 
 
 /**
@@ -50,13 +40,10 @@ public class Game implements Screen{
     private OrthogonalTiledMapRenderer tiledMapRenderer;
     public Box2DMapObjectParser parser;
 
-    public static ArrayList<Creature> playerList = new ArrayList<>();
-
     public Game(ShipBallot game){
         this.game = game;
     }
 
-    Player player;
     Batch batch;
 
     private Array<Body> tmpBodies = new Array<Body>();
@@ -123,12 +110,12 @@ public class Game implements Screen{
         //setBounds(x,y,width,height)
         touchpad.setBounds(15, 15, 200, 200);
 
-        hudStage = new HUDSideBar(AshleyEntityManager.playerTest);
+        hudStage = new HUDSideBar(AshleyEntityManager.player);
 
         stage = new Stage();
         stage.addActor(touchpad);
         InputMultiplexer inputMultiplexer = new InputMultiplexer();
-        inputMultiplexer.addProcessor(AshleyEntityManager.playerTest);
+        inputMultiplexer.addProcessor(AshleyEntityManager.player);
         inputMultiplexer.addProcessor(stage);
         Gdx.input.setInputProcessor(inputMultiplexer);
 
@@ -138,7 +125,7 @@ public class Game implements Screen{
     @Override
     public void render(float delta) {
         world.step(1 / 60f, 8, 3);
-        //EntityManager.update(world, delta);
+
         currentTimeMillis = System.currentTimeMillis();
         FpsTimer.update();
 
@@ -146,7 +133,10 @@ public class Game implements Screen{
         Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        camera.position.set(AshleyEntityManager.player.getComponent(BodyComponent.class).body.getPosition().x, AshleyEntityManager.player.getComponent(BodyComponent.class).body.getPosition().y, 0);
+        camera.position.set(AshleyEntityManager.player.getBody().getPosition().x,
+                AshleyEntityManager.player.getBody().getPosition().y,
+                0);
+
         camera.update();
         tiledMapRenderer.setView(camera);
         tiledMapRenderer.render();

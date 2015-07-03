@@ -6,7 +6,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
-import eu.silvenia.shipballot.creature.PlayerTest;
+import eu.silvenia.shipballot.creature.Player;
 import eu.silvenia.shipballot.systems.Components.*;
 
 
@@ -18,16 +18,17 @@ public class BodyGenerator {
     public static void generateBullet(World world, Engine engine, Entity entity, int radians, float targetPosition) {
         float position = 0f;
         float weaponSpeed = Mappers.weaponMap.get(entity).getWeaponSpeed();
+        Entity player = Mappers.attachedMap.get(entity).attachedTo;
         Entity bullet = new Entity();
         Body body;
-        Body playerBody = Mappers.bodyMap.get(entity).body;
+        Body playerBody = Mappers.bodyMap.get(player).body;
         BodyDef bodyDef = new BodyDef();
         FixtureDef fixtureDef = new FixtureDef();
 
         // a ball
         bodyDef.type = BodyDef.BodyType.DynamicBody;
 
-        if(Mappers.playerData.get(entity).lookingDirection == PlayerTest.DIRECTION.EAST)
+        if(Mappers.playerData.get(player).lookingDirection == Player.DIRECTION.EAST)
             position = playerBody.getPosition().x + targetPosition;
         else
             position = playerBody.getPosition().x - targetPosition;
@@ -40,12 +41,11 @@ public class BodyGenerator {
 
         fixtureDef.shape = shape;
         fixtureDef.density = 10f;
+        fixtureDef.filter.categoryBits = PhysicsManager.BULLET;
 
         Sprite sprite = new Sprite(new Texture("bullet.png"));
         sprite.setSize(0.4f, 0.1f);
         sprite.setOrigin(sprite.getWidth() / 2, sprite.getHeight() / 2);
-
-
 
         body = world.createBody(bodyDef);
         body.createFixture(fixtureDef);
@@ -54,18 +54,23 @@ public class BodyGenerator {
         body.setBullet(true);
         shape.dispose();
 
+        long damage = Mappers.weaponMap.get(entity).getWeaponDamage();
+
+        damage = (long)(Math.random()*damage + (damage / 2));
         BodyComponent bodyComponent = new BodyComponent(body);
         bullet.add(new RenderableComponent())
                 .add(new PositionComponent(body.getPosition().x, body.getPosition().y, 0))
                 .add(new SpriteComponent(sprite))
                 .add(new BulletCollisionComponent())
+                .add(new AttachedComponent(entity))
+                .add(new BulletDamageComponent(damage))
                 .add(new TypeComponent(PhysicsManager.COL_FRIENDLY_BULLET));
         bullet.add(bodyComponent);
 
         engine.addEntity(bullet);
         AshleyEntityManager.add(bullet);
 
-        if(Mappers.playerData.get(entity).lookingDirection == PlayerTest.DIRECTION.EAST) {
+        if(Mappers.playerData.get(player).lookingDirection == Player.DIRECTION.EAST) {
             body.setTransform(body.getPosition().x, body.getPosition().y, (float)Math.toRadians(180));
             body.applyLinearImpulse(new Vector2(weaponSpeed *(float)Math.sin(-Math.toRadians(270)), weaponSpeed * (float)Math.cos(Math.toRadians(270))), body.getPosition(), true);
         }else

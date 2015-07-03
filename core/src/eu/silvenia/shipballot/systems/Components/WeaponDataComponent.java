@@ -13,21 +13,29 @@ public class WeaponDataComponent extends Component{
     public boolean canFire = false;
 
     private float weaponSpeed;
+    private Weapon.WeaponType weaponType;
+
+    private long weaponDamage;
 
     public WeaponDataComponent(Weapon.WeaponType weaponType){
+        this.weaponType = weaponType;
         switch(weaponType){
             case PISTOL:{
                 reloadTime = 2.0f;
                 weaponSpeed = 7f;
+                weaponDamage = 10;
                 break;
             }
             case RIFLE:{
-                reloadTime = 8f * 60;
+                reloadTime = 3.5f;
+                weaponSpeed = 10f;
+                weaponDamage = 25;
                 break;
             }
             case SHOTGUN:{
-                reloadTime = 2.3f * 60;
+                reloadTime = 2.3f;
                 weaponSpeed = 5.5f;
+                weaponDamage = 20;
                 break;
             }
         }
@@ -55,5 +63,13 @@ public class WeaponDataComponent extends Component{
 
     public void setWeaponSpeed(float weaponSpeed) {
         this.weaponSpeed = weaponSpeed;
+    }
+
+    public Weapon.WeaponType getWeaponType() {
+        return weaponType;
+    }
+
+    public long getWeaponDamage() {
+        return weaponDamage;
     }
 }

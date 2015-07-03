@@ -8,11 +8,8 @@ import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
-import com.badlogic.gdx.utils.Align;
-import com.badlogic.gdx.utils.viewport.Viewport;
-import eu.silvenia.shipballot.creature.PlayerTest;
-import eu.silvenia.shipballot.screens.Game;
+import eu.silvenia.shipballot.creature.Player;
+import eu.silvenia.shipballot.weapons.Weapon;
 
 /**
  * Created by Johnnie Ho on 2-7-2015.
@@ -26,12 +23,14 @@ public class HUDSideBar extends Stage {
     Sprite experienceBackground = new Sprite(new Texture(Gdx.files.internal("experiencebarbg.png")));
     Sprite experienceForeground = new Sprite(new Texture(Gdx.files.internal("experiencebarfg.png")));
     Image levelCircle = new Image(new Texture(Gdx.files.internal("hud_levelcircle.png")));
+    Image weaponSlot = new Image(new Texture(Gdx.files.internal("WeaponSlot.png")));
+    Sprite weaponSprite;
     Table table = new Table();
-    PlayerTest player;
+    Player player;
 
     String healthBar;
 
-    public HUDSideBar(PlayerTest player){
+    public HUDSideBar(Player player){
         super();
 
         this.player = player;
@@ -49,26 +48,29 @@ public class HUDSideBar extends Stage {
         BitmapFont font12 = generator.generateFont(parameter); // font size 12 pixels
         generator.dispose();
         this.font = font12;
-        healthBarBackground.setPosition(12, getCamera().viewportHeight - 40);
-        healthBarForeground.setPosition(15, getCamera().viewportHeight - 37);
+        healthBarBackground.setPosition(112, getCamera().viewportHeight - 45);
+        healthBarForeground.setPosition(115, getCamera().viewportHeight - 42);
         healthBarForeground.setOrigin(0, 0);
 
-        experienceBackground.setPosition(24, getCamera().viewportHeight - 51);
-        experienceForeground.setPosition(26, getCamera().viewportHeight - 49);
+        experienceBackground.setPosition(135, getCamera().viewportHeight - 56);
+        experienceForeground.setPosition(137, getCamera().viewportHeight - 54);
         experienceForeground.setOrigin(0, 0);
 
         font.getData().setScale(0.60f);
 
-        healthBarForeground.setScale(player.getHealth() / (float)player.getMaxHealth(), 1f);
-        experienceForeground.setScale(player.getExperience() / (float)PlayerTest.getExpForNextLv(player.getLevel() + 1), 1f);
-        levelCircle.setPosition(8, getCamera().viewportHeight - 50);
-        System.out.println(player.getExpForNextLv(2));
+        levelCircle.setPosition(123, getCamera().viewportHeight - 55);
+        weaponSlot.setPosition(5, getCamera().viewportHeight - 140);
+        updateWeapon(player.getWeaponType());
+
     }
 
     @Override
     public void act(){
         super.act();
         healthBar = Integer.toString(player.getHealth()) + "/" + Integer.toString(player.getMaxHealth());
+
+        healthBarForeground.setScale(player.getHealth() / (float)player.getMaxHealth(), 1f);
+        experienceForeground.setScale(player.getExperience() / (float) Player.getExpForNextLv(player.getLevel() + 1), 1f);
     }
 
     @Override
@@ -81,17 +83,35 @@ public class HUDSideBar extends Stage {
         healthBarForeground.draw(getBatch());
         experienceBackground.draw(getBatch());
         experienceForeground.draw(getBatch());
+        weaponSlot.draw(getBatch(), 1);
+        weaponSprite.draw(getBatch());
         levelCircle.draw(getBatch(), 1);
 
         font.draw(getBatch(), healthBar, healthBarBackground.getX() + 70f , healthBarBackground .getY() + 22);
         if(player.getLevel() < 10)
-            font.draw(getBatch(), Integer.toString(player.getLevel()), 12 + 5 , levelCircle.getY() + 19);
+            font.draw(getBatch(), Integer.toString(player.getLevel()), levelCircle.getX() + 9 , levelCircle.getY() + 19);
         else
-            font.draw(getBatch(), Integer.toString(player.getLevel()), 12, levelCircle.getY() + 19);
+            font.draw(getBatch(), Integer.toString(player.getLevel()), levelCircle.getX() + 4 , levelCircle.getY() + 19);
 
         getBatch().end();
+    }
 
-
+    public void updateWeapon(Weapon.WeaponType weaponType){
+        switch(weaponType){
+            case PISTOL:{
+                weaponSprite = new Sprite(new Texture(Gdx.files.internal("weapons/pistol.png")));
+                break;
+            }
+            case SHOTGUN:{
+                weaponSprite = new Sprite(new Texture(Gdx.files.internal("weapons/shotgun.png")));
+                break;
+            }
+            case RIFLE:{
+                weaponSprite = new Sprite(new Texture(Gdx.files.internal("weapons/assault_rifle.png")));
+                break;
+            }
+        }
+        weaponSprite.setPosition(weaponSlot.getX() + 20, weaponSlot.getY() + 20);
     }
 
 }

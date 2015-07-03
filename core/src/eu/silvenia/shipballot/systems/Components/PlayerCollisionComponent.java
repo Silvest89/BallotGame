@@ -16,8 +16,9 @@ public class PlayerCollisionComponent extends Component implements Collidable {
     @Override
     public void handleCollision(Engine engine, Entity collider, Entity collidee) {
         if(collider == null || collidee != null){
-            if(Mappers.playerData.has(collidee))
+            if(Mappers.playerData.has(collidee)) {
                 collidee.getComponent(PlayerDataComponent.class).canJump = true;
+            }
         }
         else if(collider != null || collidee == null){
             if(Mappers.playerData.has(collider))

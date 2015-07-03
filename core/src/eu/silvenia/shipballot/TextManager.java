@@ -41,7 +41,7 @@ public class TextManager {
             this.y = y + 0.5f;
             font.setColor(Color.RED);
 
-            EntityManager.addToDisplay(this);
+            //EntityManager.addToDisplay(this);
         }
 
         public void update(){
@@ -50,8 +50,8 @@ public class TextManager {
             transparency += 1;
             momentum.y -= gravity;
 
-            if(transparency >= 60)
-                EntityManager.removeFromDisplay(this);
+            //if(transparency >= 60)
+                //EntityManager.removeFromDisplay(this);
         }
 
         public void draw(Batch batch){

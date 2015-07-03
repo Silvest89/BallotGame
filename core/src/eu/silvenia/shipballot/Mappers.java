@@ -18,6 +18,11 @@ public class Mappers {
     public static final ComponentMapper<ShootingComponent>shootingMap = ComponentMapper.getFor(ShootingComponent.class);
     public static final ComponentMapper<WeaponDataComponent>weaponMap = ComponentMapper.getFor(WeaponDataComponent.class);
     public static final ComponentMapper<AttachedComponent>attachedMap = ComponentMapper.getFor(AttachedComponent.class);
+    public static final ComponentMapper<BulletDamageComponent>bulletDamageMap = ComponentMapper.getFor(BulletDamageComponent.class);
+    public static final ComponentMapper<DeathTimerComponent>    deathTimerMap   = ComponentMapper.getFor(DeathTimerComponent.class);
+    public static final ComponentMapper<BitmapFontComponent>    bitmapFontMap   = ComponentMapper.getFor(BitmapFontComponent.class);
+    public static final ComponentMapper<TransparentComponent>   transparencyMap = ComponentMapper.getFor(TransparentComponent.class);
+    public static final ComponentMapper<FauxGravityComponent>   fauxGravityMap = ComponentMapper.getFor(FauxGravityComponent.class);
 
 
 }
