@@ -3,19 +3,19 @@ package eu.silvenia.shipballot.creature;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
+import com.badlogic.gdx.ai.fsm.DefaultStateMachine;
+import com.badlogic.gdx.ai.fsm.StateMachine;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.Event;
-import com.badlogic.gdx.scenes.scene2d.EventListener;
+import com.badlogic.gdx.scenes.scene2d.ui.Touchpad;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
-import eu.silvenia.shipballot.AshleyEntityManager;
 import eu.silvenia.shipballot.Mappers;
-import eu.silvenia.shipballot.PhysicsManager;
 import eu.silvenia.shipballot.Updateable;
+import eu.silvenia.shipballot.screens.Game;
 import eu.silvenia.shipballot.systems.Components.*;
 import eu.silvenia.shipballot.weapons.Weapon;
 
@@ -28,31 +28,52 @@ public class Player implements Updateable, InputProcessor {
     private Entity entity;
     private Entity weapon;
 
+    public StateMachine<Player> stateMachine;
+
     public enum DIRECTION{
         EAST,
         WEST
     }
-    private float animationTime = 0;
+    public float animationTime = 0;
+    public Touchpad touchpad;
+
+    public long jumpTimer;
 
     protected Animation southStanding, westStanding, eastStanding, northStanding;
     protected Animation south, west, east, north;
 
     public Player(Entity entity){
         this.entity = entity;
+        stateMachine = new DefaultStateMachine<Player>(this, PlayerState.GROUNDED);
 
         weapon = new Entity();
         weapon.add(new WeaponDataComponent(Weapon.WeaponType.PISTOL))
             .add(new ShootingComponent())
             .add(new AttachedComponent(entity));
+
     }
 
     public void update(float delta) {
+
+        //touchPadHandler();
+
         animationTime = animationTime + (160 * delta / 100);
-        move();
+
+        stateMachine.update();
+
         if(getMovingDirection() != null)
             animatePlayer();
+
     }
 
+    public void touchPadHandler(){
+        if(touchpad.isTouched()) {
+            System.out.println(touchpad.getKnobPercentX() + " " + touchpad.getKnobPercentY());
+
+        }
+        else
+            stopPlayer();
+    }
     public void animatePlayer(){
         switch(getMovingDirection()){
             case WEST:{
@@ -98,20 +119,13 @@ public class Player implements Updateable, InputProcessor {
                 break;
             }
             case Input.Keys.SPACE:{
-                if(canJump()) {
-                    getBody().applyLinearImpulse(0,
-                            getJumpForce(),
-                            getBody().getWorldCenter().x,
-                            getBody().getWorldCenter().y,
-                            true);
-                    //setCanJump(false);
-                }
-
+                jumpPlayer();
                 break;
             }
             case Input.Keys.SHIFT_LEFT:{
-                if(getReloadTimer() >= getReloadTime())
+                if(!canFire() && getReloadTimer() <= Game.currentTimeMillis) {
                     setCanFire(true);
+                }
                 break;
             }
         }
@@ -172,6 +186,18 @@ public class Player implements Updateable, InputProcessor {
                 setMovingDirection(DIRECTION.EAST);
                 break;
             }
+        }
+    }
+
+    public void jumpPlayer(){
+        if (canJump() && Game.currentTimeMillis >= jumpTimer) {
+
+            getBody().applyLinearImpulse(0,
+                    getJumpForce(),
+                    getBody().getWorldCenter().x,
+                    getBody().getWorldCenter().y,
+                    true);
+            jumpTimer = Game.currentTimeMillis + 1000;
         }
     }
 
@@ -248,11 +274,8 @@ public class Player implements Updateable, InputProcessor {
         return Mappers.spriteMap.get(entity).spritesList.first();
     }
 
-    public float getReloadTimer(){
+    public long getReloadTimer(){
         return Mappers.weaponMap.get(weapon).reloadTimer;
-    }
-    public float getReloadTime(){
-        return Mappers.weaponMap.get(weapon).getReloadTime();
     }
     public boolean canFire(){
         return Mappers.weaponMap.get(weapon).canFire;
@@ -274,5 +297,34 @@ public class Player implements Updateable, InputProcessor {
     }
     public Entity getWeapon(){
         return weapon;
+    }
+
+    ChangeListener touchPadListener = new ChangeListener() {
+        @Override
+        public void changed(ChangeEvent event, Actor actor) {
+
+        }
+    };
+
+    public void setTouchPad(Touchpad touchPad){
+        this.touchpad = touchPad;
+        touchpad.addListener(new ChangeListener(){
+
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                if(touchpad.getKnobPercentY() != 0.0 && touchpad.getKnobPercentX() != 0.0) {
+                    if (touchpad.getKnobPercentX() > -0.75f && touchpad.getKnobPercentX() < 0.75f && touchpad.getKnobPercentY() > 0.65f)
+                        jumpPlayer();
+                    if (touchpad.getKnobPercentX() > -0.75f && touchpad.getKnobPercentX() < 0.75f && touchpad.getKnobPercentY() < -0.65f)
+                        System.out.println("DOWN");
+                    if (touchpad.getKnobPercentY() > -0.75f && touchpad.getKnobPercentY() < 0.75f && touchpad.getKnobPercentX() > 0.65f)
+                        movePlayer(DIRECTION.EAST);
+                    if (touchpad.getKnobPercentY() > -0.75f && touchpad.getKnobPercentY() < 0.75f && touchpad.getKnobPercentX() < -0.65f)
+                        movePlayer(DIRECTION.WEST);
+                }else
+                    stopPlayer();
+            }
+
+        });
     }
 }

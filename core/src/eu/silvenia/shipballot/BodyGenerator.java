@@ -15,8 +15,8 @@ import eu.silvenia.shipballot.systems.Components.*;
  */
 public class BodyGenerator {
 
-    public static void generateBullet(World world, Engine engine, Entity entity, int radians, float targetPosition) {
-        float position = 0f;
+    public static void generateBullet(World world, Engine engine, Entity entity, int radians, float targetPositionX, float targetPositionY) {
+        float positionX = 0f;
         float weaponSpeed = Mappers.weaponMap.get(entity).getWeaponSpeed();
         Entity player = Mappers.attachedMap.get(entity).attachedTo;
         Entity bullet = new Entity();
@@ -28,12 +28,20 @@ public class BodyGenerator {
         // a ball
         bodyDef.type = BodyDef.BodyType.DynamicBody;
 
-        if(Mappers.playerData.get(player).lookingDirection == Player.DIRECTION.EAST)
-            position = playerBody.getPosition().x + targetPosition;
-        else
-            position = playerBody.getPosition().x - targetPosition;
+        Sprite sprite = new Sprite(new Texture("bullet.png"));
+        sprite.setSize(0.4f, 0.1f);
+        sprite.setOrigin(sprite.getWidth() / 2, sprite.getHeight() / 2);
 
-        bodyDef.position.set(position, playerBody.getPosition().y);
+        if(Mappers.playerData.get(player).lookingDirection == Player.DIRECTION.EAST) {
+            positionX = playerBody.getPosition().x + targetPositionX;
+            sprite.setRotation(radians - 90);
+        }
+        else{
+            positionX = playerBody.getPosition().x - targetPositionX;
+            sprite.setRotation(-radians - 90);
+        }
+
+        bodyDef.position.set(positionX, playerBody.getPosition().y + targetPositionY);
         bodyDef.gravityScale = 0;
 
         PolygonShape shape = new PolygonShape();
@@ -42,10 +50,6 @@ public class BodyGenerator {
         fixtureDef.shape = shape;
         fixtureDef.density = 10f;
         fixtureDef.filter.categoryBits = PhysicsManager.BULLET;
-
-        Sprite sprite = new Sprite(new Texture("bullet.png"));
-        sprite.setSize(0.4f, 0.1f);
-        sprite.setOrigin(sprite.getWidth() / 2, sprite.getHeight() / 2);
 
         body = world.createBody(bodyDef);
         body.createFixture(fixtureDef);
@@ -71,10 +75,11 @@ public class BodyGenerator {
         AshleyEntityManager.add(bullet);
 
         if(Mappers.playerData.get(player).lookingDirection == Player.DIRECTION.EAST) {
-            body.setTransform(body.getPosition().x, body.getPosition().y, (float)Math.toRadians(180));
-            body.applyLinearImpulse(new Vector2(weaponSpeed *(float)Math.sin(-Math.toRadians(270)), weaponSpeed * (float)Math.cos(Math.toRadians(270))), body.getPosition(), true);
-        }else
-            body.applyLinearImpulse(new Vector2(-(weaponSpeed * (float) Math.sin(-Math.toRadians(270))), weaponSpeed * (float) Math.cos(Math.toRadians(270))), body.getPosition(), true);
-        //body.applyLinearImpulse(new Vector2(-(weaponSpeed * (float) Math.sin(-Math.toRadians(270))), weaponSpeed * (float) Math.cos(Math.toRadians(270))), body.getPosition(), true);
+            body.setTransform(body.getPosition().x, body.getPosition().y, (float)Math.toRadians(radians-90));
+            body.applyLinearImpulse(new Vector2(weaponSpeed *(float)Math.sin(-Math.toRadians(radians)), weaponSpeed * (float)Math.cos(Math.toRadians(radians))), body.getPosition(), true);
+        }else {
+            body.setTransform(body.getPosition().x, body.getPosition().y, (float)-Math.toRadians(radians-90));
+            body.applyLinearImpulse(new Vector2(-(weaponSpeed * (float) Math.sin(-Math.toRadians(radians))), weaponSpeed * (float) Math.cos(Math.toRadians(radians))), body.getPosition(), true);
+        }
     }
 }

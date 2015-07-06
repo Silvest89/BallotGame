@@ -50,7 +50,6 @@ public class Game implements Screen{
 
     public static float SCALE;
 
-    private Touchpad touchpad;
     private Touchpad.TouchpadStyle touchpadStyle;
     private Skin touchpadSkin;
     private Drawable touchBackground;
@@ -73,23 +72,16 @@ public class Game implements Screen{
 
         ashleyEntityManager = new AshleyEntityManager(engine, world, batch);
 
-        float w = Gdx.graphics.getWidth();
-        float h = Gdx.graphics.getHeight();
-
-        SCALE = 1;
-
         camera = new OrthographicCamera();
-
         debugRenderer = new Box2DDebugRenderer();
 
         TiledMap map = new TmxMapLoader().load("map/naamloos.tmx");
-
         parser = new Box2DMapObjectParser(1 / 35f);
         parser.load(world, map);
-
         tiledMapRenderer = new OrthogonalTiledMapRenderer(map, parser.getUnitScale());
 
         TextureAtlas playerAtlas = new TextureAtlas("player.pack");
+
 
         //Create a touchpad skin
         touchpadSkin = new Skin();
@@ -106,9 +98,10 @@ public class Game implements Screen{
         touchpadStyle.background = touchBackground;
         touchpadStyle.knob = touchKnob;
         //Create new TouchPad with the created style
-        touchpad = new Touchpad(10, touchpadStyle);
+        Touchpad touchpad = new Touchpad(10, touchpadStyle);
         //setBounds(x,y,width,height)
         touchpad.setBounds(15, 15, 200, 200);
+        AshleyEntityManager.player.setTouchPad(touchpad);
 
         hudStage = new HUDSideBar(AshleyEntityManager.player);
 
@@ -149,19 +142,7 @@ public class Game implements Screen{
 
         stage.act(Gdx.graphics.getDeltaTime());
         stage.draw();
-        if(touchpad.isTouched()) {
-            System.out.println(touchpad.getKnobPercentX() + " " + touchpad.getKnobPercentY());
-            if(touchpad.getKnobPercentY() != 0.0 && touchpad.getKnobPercentX() != 0.0) {
-                if (touchpad.getKnobPercentX() > -0.75f && touchpad.getKnobPercentX() < 0.75f && touchpad.getKnobPercentY() > 0.65f)
-                    System.out.println("UP");
-                if (touchpad.getKnobPercentX() > -0.75f && touchpad.getKnobPercentX() < 0.75f && touchpad.getKnobPercentY() < -0.65f)
-                    System.out.println("DOWN");
-                if (touchpad.getKnobPercentY() > -0.75f && touchpad.getKnobPercentY() < 0.75f && touchpad.getKnobPercentX() > 0.65f)
-                    System.out.println("LEFT");
-                if (touchpad.getKnobPercentY() > -0.75f && touchpad.getKnobPercentY() < 0.75f && touchpad.getKnobPercentX() < -0.65f)
-                    System.out.println("RIGHT");
-            }
-        }
+
         debugRenderer.render(world, camera.combined);
 
         stage.getBatch().setProjectionMatrix(camera.combined);

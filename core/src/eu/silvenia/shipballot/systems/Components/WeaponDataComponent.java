@@ -7,9 +7,9 @@ import eu.silvenia.shipballot.weapons.Weapon;
  * Created by Johnnie Ho on 29-6-2015.
  */
 public class WeaponDataComponent extends Component{
-    private float reloadTime;
+    private long reloadTime;
 
-    public float reloadTimer = 0f;
+    public long reloadTimer = 0;
     public boolean canFire = false;
 
     private float weaponSpeed;
@@ -21,19 +21,19 @@ public class WeaponDataComponent extends Component{
         this.weaponType = weaponType;
         switch(weaponType){
             case PISTOL:{
-                reloadTime = 2.0f;
+                reloadTime = 2000;
                 weaponSpeed = 7f;
                 weaponDamage = 10;
                 break;
             }
             case RIFLE:{
-                reloadTime = 3.5f;
+                reloadTime = 3500;
                 weaponSpeed = 10f;
                 weaponDamage = 25;
                 break;
             }
             case SHOTGUN:{
-                reloadTime = 2.3f;
+                reloadTime = 3000;
                 weaponSpeed = 5.5f;
                 weaponDamage = 20;
                 break;
@@ -41,11 +41,11 @@ public class WeaponDataComponent extends Component{
         }
     }
 
-    public float getReloadTime() {
+    public long getReloadTime() {
         return reloadTime;
     }
 
-    public void setReloadTime(float reloadTime) {
+    public void setReloadTime(long reloadTime) {
         this.reloadTime = reloadTime;
     }
 

@@ -7,6 +7,7 @@ import com.badlogic.ashley.systems.IteratingSystem;
 import com.badlogic.gdx.physics.box2d.*;
 import eu.silvenia.shipballot.BodyGenerator;
 import eu.silvenia.shipballot.Mappers;
+import eu.silvenia.shipballot.screens.Game;
 import eu.silvenia.shipballot.systems.Components.*;
 
 /**
@@ -24,17 +25,24 @@ public class ShootWeaponSystem extends IteratingSystem {
 
     @Override
     public void processEntity(Entity entity, float deltaTime) {
-        float reloadTime = Mappers.weaponMap.get(entity).getReloadTime();
+        long reloadTime = Mappers.weaponMap.get(entity).getReloadTime();
 
-        if(Mappers.weaponMap.get(entity).canFire && Mappers.weaponMap.get(entity).reloadTimer >= reloadTime){
-            BodyGenerator.generateBullet(world, engine, entity, 270 , 1.5f);
-            Mappers.weaponMap.get(entity).canFire = false;
-            Mappers.weaponMap.get(entity).reloadTimer = 0f;
-        }
-        else{
-            if(Mappers.weaponMap.get(entity).reloadTimer < reloadTime) {
-                Mappers.weaponMap.get(entity).reloadTimer += deltaTime;
+        if(Mappers.weaponMap.get(entity).canFire && Mappers.weaponMap.get(entity).reloadTimer <= Game.currentTimeMillis){
+            switch(Mappers.weaponMap.get(entity).getWeaponType()){
+                case SHOTGUN:{
+                    BodyGenerator.generateBullet(world, engine, entity, 270 , 1.5f, 0f);
+                    BodyGenerator.generateBullet(world, engine, entity, 290 , 1.5f, 0.5f);
+                    break;
+                }
+                case PISTOL:
+                case RIFLE: {
+                    BodyGenerator.generateBullet(world, engine, entity, 270, 1.5f, 0f);
+                    BodyGenerator.generateBullet(world, engine, entity, 270, 1.5f, 0f);
+                    break;
+                }
             }
+            Mappers.weaponMap.get(entity).canFire = false;
+            Mappers.weaponMap.get(entity).reloadTimer = Game.currentTimeMillis + reloadTime;
         }
     }
 }

@@ -21,5 +21,5 @@ public class PlayerDataComponent extends CreatureDataComponent {
     public Player.DIRECTION lookingDirection = null;
 
     public int jumpForce = 90;
-    public int movementForce = 450;
+    public int movementForce = 45;
 }

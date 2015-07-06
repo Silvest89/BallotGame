@@ -53,6 +53,7 @@ public class CollisionManager implements ContactListener {
     public CollisionManager(Engine engine, World world) {
         this.engine = engine;
         world.setContactListener(this);
+        //world.setContactFilter(this);
     }
 
     @Override
@@ -65,7 +66,6 @@ public class CollisionManager implements ContactListener {
     public void beginContact(Contact contact) {
         Fixture fixtureA = contact.getFixtureA();
         Fixture fixtureB = contact.getFixtureB();
-
         if(fixtureA.getFilterData().categoryBits == PhysicsManager.BULLET){
             handleBulletCollision(fixtureA, fixtureB);
             return;
@@ -114,6 +114,7 @@ public class CollisionManager implements ContactListener {
     }
 
     public void handleSensorCollision(Fixture fixture, boolean endContact){
+        Entity entity2 = (Entity) fixture.getBody().getUserData();
         if(!endContact) {
             if (fixture.getFilterData().categoryBits == PhysicsManager.FOOT_SENSOR) {
                 Entity entity = (Entity) fixture.getBody().getUserData();
@@ -126,6 +127,7 @@ public class CollisionManager implements ContactListener {
                 Mappers.playerData.get(entity).canJump = false;
             }
         }
+
     }
 
     public void handleBulletCollision(Fixture fixtureA, Fixture fixtureB){;
@@ -133,28 +135,30 @@ public class CollisionManager implements ContactListener {
 
         }
         else{
-            Entity bullet = (Entity)fixtureA.getBody().getUserData();
-            Entity entity = (Entity)fixtureB.getBody().getUserData();
-            if(entity != null && bullet != null){
-                Mappers.playerData.get(entity).health -= Mappers.bulletDamageMap.get(bullet).damage;
+            if(fixtureA.getBody().isBullet() != fixtureB.getBody().isBullet()) {
+                Entity bullet = (Entity) fixtureA.getBody().getUserData();
+                Entity entity = (Entity) fixtureB.getBody().getUserData();
+                if (entity != null && bullet != null) {
+                    Mappers.playerData.get(entity).health -= Mappers.bulletDamageMap.get(bullet).damage;
 
-                Body body = Mappers.bodyMap.get(entity).body;
-                Entity indicator = new Entity();
-                BitmapFontComponent bFontCom = new BitmapFontComponent(new BitmapFont(), "" + Mappers.bulletDamageMap.get(bullet).damage);
-                PositionComponent posCom = new PositionComponent(body.getPosition().x, body.getPosition().y, 500);
-                VelocityComponent vCom = new VelocityComponent((float) (Math.random() - 0.5d) * 1f, 0.3f); // make these random
-                RenderableComponent renderCom = new RenderableComponent();
-                TransparentComponent transCom = new TransparentComponent(1);
-                DeathTimerComponent deathCom  = new DeathTimerComponent(2000); // die after 2 seconds?
-                FauxGravityComponent fauxGCom = new FauxGravityComponent(0.01f);
-                indicator.add(bFontCom)
-                        .add(posCom)
-                        .add(vCom)
-                        .add(renderCom)
-                        .add(transCom)
-                        .add(deathCom)
-                        .add(fauxGCom);
-                AshleyEntityManager.getEngine().addEntity(indicator);
+                    Body body = Mappers.bodyMap.get(entity).body;
+                    Entity indicator = new Entity();
+                    BitmapFontComponent bFontCom = new BitmapFontComponent(new BitmapFont(), "" + Mappers.bulletDamageMap.get(bullet).damage);
+                    PositionComponent posCom = new PositionComponent(body.getPosition().x, body.getPosition().y, 500);
+                    VelocityComponent vCom = new VelocityComponent((float) (Math.random() - 0.5d) * 1f, 0.3f); // make these random
+                    RenderableComponent renderCom = new RenderableComponent();
+                    TransparentComponent transCom = new TransparentComponent(1);
+                    DeathTimerComponent deathCom = new DeathTimerComponent(2000); // die after 2 seconds?
+                    FauxGravityComponent fauxGCom = new FauxGravityComponent(0.01f);
+                    indicator.add(bFontCom)
+                            .add(posCom)
+                            .add(vCom)
+                            .add(renderCom)
+                            .add(transCom)
+                            .add(deathCom)
+                            .add(fauxGCom);
+                    AshleyEntityManager.getEngine().addEntity(indicator);
+                }
             }
         }
         Entity bullet = (Entity) fixtureA.getBody().getUserData();

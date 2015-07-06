@@ -74,15 +74,18 @@ public class AshleyEntityManager {
         fixtureDef.shape = shape;
         fixtureDef.density = 2.5f;
         fixtureDef.restitution = 0f;
+        fixtureDef.filter.categoryBits = PhysicsManager.PLAYER_BODY;
+        fixtureDef.filter.maskBits = PhysicsManager.PLAYER_BODY|PhysicsManager.BULLET | PhysicsManager.GROUND;
 
         body = world.createBody(bodyDef);
         body.createFixture(fixtureDef);
         PolygonShape shape2 = new PolygonShape();
-        shape2.setAsBox(0.7f, 0.1f, new Vector2(0, -1.1f), 0);
+        shape2.setAsBox(0.9f, 0.1f, new Vector2(0, -1.1f), 0);
 
         fixtureDef.shape = shape2;
         fixtureDef.isSensor = true;
         fixtureDef.filter.categoryBits = PhysicsManager.FOOT_SENSOR;
+        fixtureDef.filter.maskBits = PhysicsManager.PLAYER_BODY|PhysicsManager.BULLET|PhysicsManager.GROUND;
         body.createFixture(fixtureDef);
 
 
